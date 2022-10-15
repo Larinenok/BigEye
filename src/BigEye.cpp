@@ -1,5 +1,11 @@
-#include <iostream>
+#include <QCoreApplication>
+#include <opencv2/opencv.hpp>
 
-int main() {
-    return 0;
+int main(int argc, char *argv[])
+{
+    cv::VideoCapture cap;
+    cap.open("./");
+    QCoreApplication a(argc, argv);
+
+    return a.exec();
 }
