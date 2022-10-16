@@ -1,10 +1,17 @@
-#include <QCoreApplication>
-#include <opencv2/opencv.hpp>
+#include "engine/engine.hpp"
+#include "input/stream.hpp"
+#include "ui/window.hpp"
 
 int main(int argc, char *argv[])
 {
-    cv::VideoCapture cap;
-    cap.open("./");
+    // OpenCV Build Test
+    cv::VideoCapture streamVideo = input::openVideo("./video.webm");
+    cv::VideoCapture streamCam = input::openCamera(0);
+
+    streamVideo.release();
+    streamCam.release();
+
+    // QT Build Test
     QCoreApplication a(argc, argv);
 
     return a.exec();

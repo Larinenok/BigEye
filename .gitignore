@@ -1,6 +1,7 @@
 # Project
 build
 cmake-build-*
+.cache
 
 # Prerequisites
 *.d
