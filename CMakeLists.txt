@@ -6,6 +6,10 @@ project(            BigEye
 )
 
 ### COMPILE PROPERTIES ###
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BE_BUILD_SAN OFF)                   # Build project with sanitizers
@@ -35,15 +39,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 endif ()
 
-### SRC FILES ###
-file(GLOB_RECURSE SRCFILES "./src/*.cpp")
-
-include_directories(AFTER SYSTEM ./include)
-add_executable(${PROJECT_NAME} ${SRCFILES})
-target_include_directories(${PROJECT_NAME} PRIVATE ./include)
-
-#add_subdirectory("./modules")
-
 ### SUBMODULES ###
 function (submodules_update)
     find_package(Git QUIET)
@@ -63,9 +58,34 @@ function (submodules_update)
     endif ()
 endfunction ()
 
-### OpenCV ###
+### Finding libs ###
 message         (">> Finding OpenCV")
 find_package    (OpenCV QUIET)
+
+message         (">> Finding Qt")
+find_package    (QT NAMES Qt5 Qt6 QUIET COMPONENTS Widgets)
+find_package    (Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Widgets)
+
+
+### SRC FILES ###
+file(GLOB_RECURSE SRCFILES "./src/*.cpp")
+include_directories(AFTER SYSTEM ./include)
+
+if (QT_FOUND)
+    add_compile_definitions (USE_GUI)
+    if (QT_VERSION_MAJOR GREATER_EQUAL 6)
+        qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${SRCFILES})
+        qt_finalize_executable(${PROJECT_NAME})
+    else ()
+        add_executable(${PROJECT_NAME} ${SRCFILES})
+    endif ()
+    target_link_libraries   (${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+else ()
+    message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
+
+endif ()
+
 if (NOT OpenCV_FOUND)
     message (WARNING
         "OpenCV Not found as system library!\n"
@@ -75,15 +95,6 @@ if (NOT OpenCV_FOUND)
 endif ()
 include_directories     (${OpenCV_INCLUDE_DIRS})
 link_directories        (${OpenCV_LIBRARY_DIRS})
-target_link_libraries   (${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries   (${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 
-### QT GUI ###
-message         (">> Finding Qt")
-find_package    (QT NAMES Qt6 Qt5 QUIET COMPONENTS Widgets Core)
-find_package    (Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Widgets Core)
-if (QT_FOUND)
-    add_compile_definitions (USE_GUI)
-    target_link_libraries   (${PROJECT_NAME} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Core)
-else ()
-    message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
-endif ()
+target_include_directories(${PROJECT_NAME} PRIVATE ./include)
