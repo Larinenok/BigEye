@@ -6,14 +6,20 @@ project(            BigEye
 )
 
 ### COMPILE PROPERTIES ###
+# Instruct CMake to create code from Qt designer ui files
 set(CMAKE_AUTOUIC ON)
+# Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+# CMake will handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(BE_BUILD_SAN OFF)                   # Build project with sanitizers
 
+option(BE_BUILD_SAN "Build project with sanitizers (Debug only!)" OFF)
+option(BE_USE_COLORS "Use colors in console (Unix only)" ON)
+
+# Normal-like compile properties
 function (no_msvc)
     if ("${CMAKE_BUILD_TYPE}" STRGREATER_EQUAL "DEBUG")
         add_compile_options(-O0 -g)
@@ -60,16 +66,19 @@ endfunction ()
 
 ### Finding libs ###
 message         (">> Finding OpenCV")
-find_package    (OpenCV QUIET)
+find_package    (OpenCV REQUIRED)
 
 message         (">> Finding Qt")
 find_package    (QT NAMES Qt5 Qt6 QUIET COMPONENTS Widgets)
 find_package    (Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Widgets)
 
-
-### SRC FILES ###
+### PROJECT FILES AND LIBRARIES ###
 file(GLOB_RECURSE SRCFILES "./src/*.cpp")
 include_directories(AFTER SYSTEM ./include)
+
+if (UNIX AND BE_USE_COLORS)
+    add_compile_definitions (USE_COLORS)
+endif ()
 
 if (QT_FOUND)
     add_compile_definitions (USE_GUI)
@@ -80,21 +89,20 @@ if (QT_FOUND)
         add_executable(${PROJECT_NAME} ${SRCFILES})
     endif ()
     target_link_libraries   (${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
 else ()
     message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
-
 endif ()
 
-if (NOT OpenCV_FOUND)
+if (OpenCV_FOUND)
+    include_directories     (${OpenCV_INCLUDE_DIRS})
+    link_directories        (${OpenCV_LIBRARY_DIRS})
+    target_link_libraries   (${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+else ()
     message (WARNING
         "OpenCV Not found as system library!\n"
         "Install OpenCV and add it to PATH or override variables:\n"
         "'OpenCV_INCLUDE_DIRS', 'OpenCV_LIBRARY_DIRS', 'OpenCV_LIBS'"
     )
 endif ()
-include_directories     (${OpenCV_INCLUDE_DIRS})
-link_directories        (${OpenCV_LIBRARY_DIRS})
-target_link_libraries   (${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
