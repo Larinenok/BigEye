@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
     streamCam.release();
 
     // ui/feedback test (check taskpool pls)
-    ui::error("aboba");
-    ui::warn("aboba");
-    ui::info("aboba");
-    ui::msg("aboba");
+    ui::error("Error_test");
+    ui::warn("Warn_test");
+    ui::info("Info_test");
+    ui::msg("Message_test");
 
     // excepts test
     throw excepts::error("msg","file","function","info");
