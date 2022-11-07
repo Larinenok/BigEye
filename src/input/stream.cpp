@@ -14,4 +14,4 @@ cv::VideoCapture openCamera(const int descriptor) {
     return cap;
 }
 
-} // namespace input
+}  // namespace input

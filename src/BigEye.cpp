@@ -1,11 +1,10 @@
 #include "engine/engine.hpp"
-#include "input/stream.hpp"
-#include "ui/window.hpp"
-#include "ui/feedback.hpp"
 #include "excepts.hpp"
+#include "input/stream.hpp"
+#include "ui/feedback.hpp"
+#include "ui/window.hpp"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // OpenCV Test
     cv::VideoCapture streamVideo = input::openVideo("./video.webm");
     cv::VideoCapture streamCam = input::openCamera(0);
@@ -20,7 +19,7 @@ int main(int argc, char *argv[])
     ui::msg("Message_test");
 
     // excepts test
-    throw excepts::error("msg","file","function","info");
+    throw excepts::error("msg", "file", "function", "info");
 
     // QT Test
     QCoreApplication a(argc, argv);

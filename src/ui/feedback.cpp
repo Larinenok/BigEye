@@ -7,7 +7,9 @@ namespace ui {
         std::cerr << "[" <<RED<<BOLD<<"ERROR"<<CLR<< "] "
             << BOLD<<msg<<CLR 
             << std::endl;
+        
         // GUI popup here
+        
     }
 
     void warn(std::string msg) {

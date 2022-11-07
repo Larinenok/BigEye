@@ -1,5 +1,3 @@
 #include <QCoreApplication>
 
-namespace ui {
-    
-} // namespace ui
+namespace ui {}  // namespace ui

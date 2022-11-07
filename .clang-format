@@ -1,0 +1,5 @@
+BasedOnStyle: Google
+IndentWidth: 4
+AlignConsecutiveMacros: Consecutive
+ColumnLimit: 100
+IndentPPDirectives: BeforeHash
