@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         cap.read(frame);
         resize(frame, frame, cv::Size(320, 180), 0, 0, cv::INTER_CUBIC);
 
-        frame = engine :: adjustment(frame);
+        //frame = engine :: adjustment(frame);
 
         frame = engine :: face_detection (frame);
 

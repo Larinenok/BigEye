@@ -5,6 +5,6 @@ namespace input
 
 //cv::VideoCapture openVideo(const std::string path);
 
-cv :: VideoCapture openCamera(const int descriptor);
+cv :: VideoCapture openCamera(const int deviceID);
 
 }  // namespace input
