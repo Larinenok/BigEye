@@ -1,2 +1,8 @@
 #include <opencv2/opencv.hpp>
-namespace engine {}  // namespace engine
+#include <vector>
+
+namespace engine
+{
+    cv::Mat adjustment(cv :: Mat frame);
+    cv :: Mat face_detection (cv :: Mat frame);
+}  // namespace engine
