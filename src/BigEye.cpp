@@ -1,3 +1,4 @@
+#include "db/db.hpp"
 #include "engine/engine.hpp"
 #include "excepts.hpp"
 #include "input/stream.hpp"
@@ -20,6 +21,10 @@ int main(int argc, char *argv[]) {
 
     // excepts test
     throw excepts::error("msg", "file", "function", "info");
+
+    // Database test
+    db::db database{db::sqlite};
+    // database.test();
 
     // QT Test
     QCoreApplication a(argc, argv);
