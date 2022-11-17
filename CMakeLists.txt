@@ -106,3 +106,8 @@ else ()
 endif ()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
+
+### POST-TRANSACTION TASKS ###
+message (">> Download OpenCV face-detection haarcascade...")
+set     (BE_OPENCV_HCASCADE_URL "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml")
+file    (DOWNLOAD ${BE_OPENCV_HCASCADE_URL} "./haarcascade_frontalface_default.xml")
