@@ -1,14 +1,20 @@
 #include "engine/engine.hpp"
 #include "excepts.hpp"
+#include <string>
 #include "input/stream.hpp"
 #include "ui/feedback.hpp"
 #include "ui/window.hpp"
 
 int main(int argc, char *argv[]) {
     // OpenCV Test
-    //cv::VideoCapture streamVideo = input::openVideo("./video.webm");
     cv::Mat frame;
     int deviceID = 0;
+    string path = "C:/Users/Danil/Desktop/OPD1/Q9Dp_wnYp0g.jpg";
+
+    cv::Mat img = cv::imread(path);
+
+    cv::CascadeClassifier faceCascade;
+    faceCascade.load("C:/opencv/sources/data/haarcascades_cuda/haarcascade_frontalface_default.xml");
     cv::VideoCapture cap = input::openCamera(deviceID);
 
 //    streamVideo.release();
@@ -27,11 +33,7 @@ int main(int argc, char *argv[]) {
         cap.read(frame);
         resize(frame, frame, cv::Size(320, 180), 0, 0, cv::INTER_CUBIC);
 
-        //frame = engine :: adjustment(frame);
-
-        frame = engine :: face_detection (frame);
-
-        imshow("Live", frame);
+        imshow("Live", engine :: face_detection (frame, faceCascade, img));
         if (cv::waitKey(5) >= 0)
             break;
         }
