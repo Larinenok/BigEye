@@ -4,8 +4,15 @@
 #include "input/stream.hpp"
 #include "ui/feedback.hpp"
 #include "ui/window.hpp"
+#include "utils/args.hpp"
+#include "runtime.hpp"
+
+// Runtime defaults
+bool runtime::FLAG_headless = false;
 
 int main(int argc, char *argv[]) {
+    utils::parseArgs(argc, argv);   // this function can change runtime:: flags!
+
     // OpenCV Test
     cv::VideoCapture streamVideo = input::openVideo("./video.webm");
     cv::VideoCapture streamCam = input::openCamera(0);

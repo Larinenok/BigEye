@@ -73,8 +73,8 @@ find_package    (QT NAMES Qt5 Qt6 QUIET COMPONENTS Widgets)
 find_package    (Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Widgets)
 
 ### PROJECT FILES AND LIBRARIES ###
-file(GLOB_RECURSE SRCFILES "./src/*.cpp")
-include_directories(AFTER SYSTEM ./include)
+file                (GLOB_RECURSE SRCFILES "./src/*.cpp")
+include_directories (AFTER SYSTEM ./include)
 
 if (UNIX AND BE_USE_COLORS)
     add_compile_definitions (USE_COLORS)
@@ -82,12 +82,14 @@ endif ()
 
 if (QT_FOUND)
     add_compile_definitions (USE_GUI)
+    
     if (QT_VERSION_MAJOR GREATER_EQUAL 6)
-        qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${SRCFILES})
-        qt_finalize_executable(${PROJECT_NAME})
+        qt_add_executable       (${PROJECT_NAME} MANUAL_FINALIZATION ${SRCFILES})
+        qt_finalize_executable  (${PROJECT_NAME})
     else ()
-        add_executable(${PROJECT_NAME} ${SRCFILES})
+        add_executable          (${PROJECT_NAME} ${SRCFILES})
     endif ()
+
     target_link_libraries   (${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 else ()
     message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
@@ -105,7 +107,7 @@ else ()
     )
 endif ()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ./include)
+target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
 
 ### POST-TRANSACTION TASKS ###
 message (">> Download OpenCV face-detection haarcascade...")
