@@ -13,13 +13,12 @@ namespace engine
         return frame;
     }
 
-    cv::Mat& face_detection (cv::Mat& frame, cv::CascadeClassifier& faceCascade, cv::Mat& img)
+    cv::Mat& face_detection (cv::Mat& frame, cv::CascadeClassifier& faceCascade)
     {
         std::vector<cv::Rect> faces;
         std::vector<cv::Rect> faces1;
 
         faceCascade.detectMultiScale(frame,faces, 1.1, 2);
-        faceCascade.detectMultiScale(img,faces1, 1.1, 2);
     //    if (frame.empty()) {
     //        cerr << "ERROR! blank frame grabbed\n";
     //        break;

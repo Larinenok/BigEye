@@ -4,5 +4,5 @@
 namespace engine
 {
     cv :: Mat& adjustment(cv :: Mat& frame);
-    cv::Mat& face_detection(cv::Mat& frame, cv::CascadeClassifier& faceCascade, cv::Mat& img);
+    cv::Mat& face_detection(cv::Mat& frame, cv::CascadeClassifier& faceCascade);
 }  // namespace engine
