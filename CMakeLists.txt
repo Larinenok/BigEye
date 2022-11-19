@@ -90,6 +90,8 @@ if (QT_FOUND)
         add_executable          (${PROJECT_NAME} ${SRCFILES})
     endif ()
 
+    qt_wrap_ui(SRCFILES mainwindow.ui)
+
     target_link_libraries   (${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 else ()
     message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
