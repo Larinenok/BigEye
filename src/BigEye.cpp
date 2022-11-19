@@ -14,6 +14,11 @@ bool runtime::FLAG_headless = false;
 int main(int argc, char *argv[]) {
     utils::parseArgs(argc, argv);   // this function can change runtime:: flags!
 
+    db::db database {db::postgres, "youmu", "123", {"localhost:5432"} };
+
+    
+
+    /*
     cv::Mat frame;
     int deviceID = 0;
 
@@ -28,5 +33,5 @@ int main(int argc, char *argv[]) {
 
         imshow("Live", engine::face_detection(frame, faceCascade));
         if (cv::waitKey(5) == 27) break; // ESC
-    }
+    }*/
 }
