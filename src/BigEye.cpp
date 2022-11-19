@@ -14,9 +14,8 @@ bool runtime::FLAG_headless = false;
 int main(int argc, char *argv[]) {
     utils::parseArgs(argc, argv);   // this function can change runtime:: flags!
 
-    db::db database {db::postgres, "youmu", "123", {"localhost:5432"} };
-
-    
+    // podman run -it --replace --name test-postgres --publish 5432:5432 -e POSTGRES_PASSWORD=youmu -e POSTGRES_DB=BigEye -d postgres:latest
+    db::db database{db::backends::postgres, "postgres", "youmu", "BigEye", {"127.0.0.1", "5432"}};
 
     /*
     cv::Mat frame;

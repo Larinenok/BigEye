@@ -69,8 +69,13 @@ message         (">> Finding OpenCV")
 find_package    (OpenCV REQUIRED)
 
 message         (">> Finding Qt")
-find_package    (QT NAMES Qt5 Qt6 QUIET COMPONENTS Widgets)
-find_package    (Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Widgets)
+find_package    (QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Widgets)
+find_package    (Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+message         (">> Finding PostgreSQL")
+find_package    (PostgreSQL REQUIRED)
+find_library    (PQXX_LIB pqxx)
+find_library    (PQ_LIB pq)
 
 ### PROJECT FILES AND LIBRARIES ###
 file                (GLOB_RECURSE SRCFILES "./src/*.cpp")
@@ -80,32 +85,41 @@ if (UNIX AND BE_USE_COLORS)
     add_compile_definitions (USE_COLORS)
 endif ()
 
+### QT
 if (QT_FOUND)
     add_compile_definitions (USE_GUI)
-    
     if (QT_VERSION_MAJOR GREATER_EQUAL 6)
         qt_add_executable       (${PROJECT_NAME} MANUAL_FINALIZATION ${SRCFILES})
         qt_finalize_executable  (${PROJECT_NAME})
     else ()
         add_executable          (${PROJECT_NAME} ${SRCFILES})
     endif ()
-
-    target_link_libraries   (${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 else ()
-    message                 (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
+    message (FATAL_ERROR "QT Not found! Install QT and add it to PATH")
 endif ()
 
+### OpenCV
 if (OpenCV_FOUND)
     include_directories     (${OpenCV_INCLUDE_DIRS})
     link_directories        (${OpenCV_LIBRARY_DIRS})
     target_link_libraries   (${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 else ()
-    message (WARNING
+    message (FATAL_ERROR
         "OpenCV Not found as system library!\n"
         "Install OpenCV and add it to PATH or override variables:\n"
         "'OpenCV_INCLUDE_DIRS', 'OpenCV_LIBRARY_DIRS', 'OpenCV_LIBS'"
     )
 endif ()
+
+### PostreSQL
+if (PostgreSQL_FOUND)
+    include_directories     (${PostgreSQL_INCLUDE_DIRS})
+    link_directories        (${PostgreSQL_LIBRARY_DIRS})
+    target_link_libraries   (${PROJECT_NAME} PRIVATE ${PostgreSQL_LIBS} ${PQXX_LIB} ${PQ_LIB})
+else ()
+    message (FATAL_ERROR "PostgreSQL library not found!")
+endif()
 
 target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
 

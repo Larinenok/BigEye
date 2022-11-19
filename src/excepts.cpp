@@ -15,7 +15,7 @@ error::error(const string msg, const string file, const string func, const strin
     // Show error
     ui::error(msg);
 
-    // Construct what()
+    // Constructing what()
     this->what_string = "excepts::error\n";
 
     if (!this->file.empty()) this->what_string.append("\t| In file: " + file + " |\n");
@@ -23,6 +23,8 @@ error::error(const string msg, const string file, const string func, const strin
     if (!this->info.empty()) this->what_string.append("\t| " + info + " |\n");
 
     this->what_msg = this->what_string.data();
+
+    // FIXME
 }
 
 const char* error::what() const throw() { return this->what_msg; }

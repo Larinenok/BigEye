@@ -1,12 +1,12 @@
 namespace db {
 
-namespace impl {
+namespace sqlite {
 
 class testimpl {
    private:
    public:
 };
 
-}  // namespace impl
+}  // namespace sqlite
 
 }  // namespace db

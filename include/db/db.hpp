@@ -1,27 +1,35 @@
-#include <string>
+#pragma once
 
-#include "db/backend/sqlite.hpp"
-#include "db/backend/postgres.hpp"
+#include <iostream>
+#include <memory>
+#include <string>
 
 namespace db {
 
+namespace backends {
 enum available { sqlite, postgres };
+}
 
-struct address {
-   std::string addr;
+struct addr {
+    std::string ip = "127.0.0.1";
+    std::string port = "";
+};
 
-   address(){}
-   address(std::string addr){}
-
+class impl {
+   private:
+   public:
+    virtual void test() = 0;
 };
 
 class db {
    private:
-    void* impl;
+    std::unique_ptr<impl> backend;
 
    public:
-    db(const enum available targetBackend, const std::string login = "",
-       const std::string passwd = "" , const address addr = {});
+    db(const backends::available targetBackend = backends::sqlite, const std::string user = "",
+       const std::string passwd = "", const std::string dbname = "BigEye", addr addr = {});
+
+    void stats();
 };
 
 }  // namespace db

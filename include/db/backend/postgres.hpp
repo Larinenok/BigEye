@@ -1,12 +1,17 @@
+#include <string>
+#include "db/db.hpp"
+
 namespace db {
+namespace postgres {
 
-namespace impl {
+const std::string default_port = "5432";
 
-class testimpl {
+class impl : ::db::impl {
    private:
    public:
+    impl();
+    void test() override {}
 };
 
-}  // namespace impl
-
+}  // namespace postgres
 }  // namespace db
