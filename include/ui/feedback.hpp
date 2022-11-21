@@ -18,5 +18,6 @@ void error(std::string msg);
 void warn(std::string msg);
 void info(std::string msg);
 void msg(std::string msg);
+//void trace()
 
 }  // namespace ui

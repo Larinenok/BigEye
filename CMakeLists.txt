@@ -118,7 +118,7 @@ if (PostgreSQL_FOUND)
     link_directories        (${PostgreSQL_LIBRARY_DIRS})
     target_link_libraries   (${PROJECT_NAME} PRIVATE ${PostgreSQL_LIBS} ${PQXX_LIB} ${PQ_LIB})
 else ()
-    message (FATAL_ERROR "PostgreSQL library not found!")
+    message (FATAL_ERROR "PostgreSQL libraries not found!")
 endif()
 
 target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
