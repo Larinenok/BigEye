@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
                         "postgres",
                         "youmu",
                         "bigeye",
-                        {"127.0.0.1", db::getDefaults(db::backends::postgres).addr.port}};
+                        {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
 
         database.stats();
     } catch (std::exception &e) {

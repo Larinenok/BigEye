@@ -14,7 +14,7 @@ credetials getDefaults() {
     ret.user = default_user;
     ret.passwd = default_passwd;
     ret.dbname = "";
-    ret.addr = {"", default_port};
+    ret.address = {"", default_port};
     return ret;
 }
 

@@ -19,7 +19,7 @@ struct credetials {
     std::string user = "";
     std::string passwd = "";
     std::string dbname = "bigeye";
-    addr addr = {};
+    addr address = {};
 };
 
 credetials getDefaults(backends::available backend);
