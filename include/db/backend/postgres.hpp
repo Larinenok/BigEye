@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pqxx/pqxx>
 #include <string>
 
 #include "db/db.hpp"
@@ -15,9 +16,12 @@ credetials getDefaults();
 
 class impl : public ::db::impl {
    private:
+    pqxx::connection C;
+
    public:
+    ~impl();
     impl(const std::string user, const std::string passwd, const std::string dbname, addr addr);
-    void test() override;
+    void setup() override;
 };
 
 }  // namespace postgres

@@ -3,11 +3,12 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace db {
 
 namespace backends {
-enum available { sqlite, postgres };
+enum available { postgres, sqlite };
 }
 
 struct addr {
@@ -26,10 +27,9 @@ credetials getDefaults(backends::available backend);
 
 // Base class of backend-specific implementation
 class impl {
-   private:
    public:
     virtual ~impl() = default;
-    virtual void test() = 0;
+    virtual void setup() = 0;
 };
 
 // Main interface
@@ -44,8 +44,22 @@ class db {
     db(const backends::available backend = backends::postgres, const std::string user = "",
        const std::string passwd = "", const std::string dbname = "bigeye", addr addr = {});
 
-    // TEST
-    void stats();
+    void setup();  // Create some tables
+
+    // Table classes:
+    //class registered {};
+    class journal {
+        public:
+        struct dataLine {
+            std::string id;
+            std::string datetime;
+            std::string metadata;
+        };
+
+        std::vector<dataLine> get();
+        void put(dataLine line);
+        
+    };
 };
 
 }  // namespace db
