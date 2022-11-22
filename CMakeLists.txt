@@ -74,8 +74,6 @@ find_package    (Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 message         (">> Finding PostgreSQL")
 find_package    (PostgreSQL REQUIRED)
-find_library    (PQXX_LIB pqxx)
-find_library    (PQ_LIB pq)
 
 ### PROJECT FILES AND LIBRARIES ###
 file                (GLOB_RECURSE SRCFILES "./src/*.cpp")
@@ -116,10 +114,23 @@ endif ()
 if (PostgreSQL_FOUND)
     include_directories     (${PostgreSQL_INCLUDE_DIRS})
     link_directories        (${PostgreSQL_LIBRARY_DIRS})
-    target_link_libraries   (${PROJECT_NAME} PRIVATE ${PostgreSQL_LIBS} ${PQXX_LIB} ${PQ_LIB})
+    target_link_libraries   (${PROJECT_NAME} PRIVATE ${PostgreSQL_LIBS})
 else ()
     message (FATAL_ERROR "PostgreSQL libraries not found!")
 endif()
+
+### PQXX
+find_library (PQXX_LIB pqxx)
+if (PQXX_LIB)
+    target_link_libraries   (${PROJECT_NAME} PRIVATE ${PQXX_LIB})
+else ()
+    submodules_update()
+    add_subdirectory        (./libs/libpqxx)
+    find_library            (pqxx HINTS "libs/libpqxx/include")
+    include_directories     (${PROJECT_SOURCE_DIR}/libs/libpqxx/include)
+    link_directories        (${PROJECT_SOURCE_DIR}/libs/libpqxx/src)
+    target_link_libraries   (${PROJECT_NAME} PRIVATE pqxx)
+endif ()
 
 target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
 
