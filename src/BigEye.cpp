@@ -24,11 +24,13 @@ int main(int argc, char *argv[]) {
                         "bigeye",
                         {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
 
-        database.stats();
+        database.setup();
     } catch (std::exception &e) {
         ui::error("Something goes whong while BigEye trying to access database! Using DryRun mode!");
         runtime::FLAG_dryRun = true;
     }
+
+    exit(-1);
 
     cv::Mat frame;
     int deviceID = 0;

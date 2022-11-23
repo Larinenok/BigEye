@@ -16,7 +16,7 @@ error::error(const string msg, const string file, const string func, const strin
     ui::error(msg);
 
     // Constructing what()
-    this->what_string = "excepts::error\n";
+    this->what_string = "Raised excepts::error\n";
 
     if (!this->file.empty()) this->what_string.append("\t| In file: " + file + " |\n");
     if (!this->func.empty()) this->what_string.append("\t| In function: " + func + " |\n");
