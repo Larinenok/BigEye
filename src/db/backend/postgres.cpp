@@ -19,25 +19,25 @@ credetials getDefaults() {
 }
 
 impl::impl(const std::string user, const std::string passwd, const std::string dbname, addr addr) {
-    std::cout << "Three\n"; // <- Не выводится
+    std::cout << "Three\n";  // <- Не выводится
     try {
         std::cout << "Four\n";
-        this->C =
-            pqxx::connection("dbname = " + dbname + " user = " + user + " password = " + passwd +
-                             " host = " + addr.ip + " port = " + addr.port);
-        if (!this->C.is_open()) throw excepts::error("Can't open database");
-        ui::msg("Opened database successfully: " + static_cast<std::string>(C.dbname()));
+        this->C = std::make_unique<pqxx::connection>("dbname = " + dbname + " user = " + user +
+                                                     " password = " + passwd +
+                                                     " host = " + addr.ip + " port = " + addr.port);
+        if (!this->C->is_open()) throw excepts::error("Can't open database");
+        ui::msg("Opened database successfully: " + static_cast<std::string>(this->C->dbname()));
 
     } catch (const std::exception &e) {
         throw excepts::error(e.what());
     }
 }
 
-impl::~impl() { this->C.close(); }
+impl::~impl() { this->C->close(); }
 
 void impl::setup() {
     // ui::trace("Setting up tables...");
-    pqxx::work W{C};
+    pqxx::work W{*C};
     char ret;
     ret = W.query_value<std::string>(
                "SELECT EXISTS ("

@@ -16,7 +16,8 @@ credetials getDefaults();
 
 class impl : public ::db::impl {
    private:
-    pqxx::connection C;
+    //std::aligned_storage_t<sizeof(pqxx::connection), alignof(pqxx::connection)> C;
+    std::unique_ptr<pqxx::connection> C;
 
    public:
     ~impl();

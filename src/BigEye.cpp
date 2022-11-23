@@ -26,9 +26,7 @@ int main(int argc, char *argv[]) {
 
         database.setup();
     } catch (std::exception &e) {
-        ui::error(e.what());
         ui::error("Something goes whong while BigEye trying to access database! Using DryRun mode!");
-
         runtime::FLAG_dryRun = true;
     }
 
