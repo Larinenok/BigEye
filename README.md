@@ -9,7 +9,7 @@
 | [Лунёв Всеволод](https://github.com/skattetskiy) | Тимлид |
 | [Мальцев Данил](https://github.com/Chopa1) | Программист |
 | [Толкачев Станислав](https://github.com/6yntar05) | Технический специалист |
-| Харлампиди София | Дизайнер |
+| [Харлампиди София](https://github.com/PolarExplor) | Дизайнер |
 
 ## Лицензия
 GNU General Public License 3.0 ([GPL](LICENSE))
