@@ -16,13 +16,14 @@ credetials getDefaults();
 
 class impl : public ::db::impl {
    private:
-    //std::aligned_storage_t<sizeof(pqxx::connection), alignof(pqxx::connection)> C;
     std::unique_ptr<pqxx::connection> C;
 
    public:
     ~impl();
     impl(const std::string user, const std::string passwd, const std::string dbname, addr addr);
     void setup() override;
+    void write() override;
+    void read() const override;
 };
 
 }  // namespace postgres

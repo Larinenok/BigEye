@@ -5,7 +5,6 @@
 #include "db/backend/postgres.hpp"
 #include "db/backend/sqlite.hpp"
 #include "excepts.hpp"
-#include "iostream"
 
 namespace db {
 
@@ -32,16 +31,14 @@ db::db(const backends::available backend, const std::string user, const std::str
         }
         case backends::postgres: {
             if (!addr.port.length()) addr.port = postgres::default_port;
-            // this->backend = std::make_unique<postgres::impl>(
-            //     user.size() ? user : postgres::default_user,
-            //     passwd.size() ? passwd : postgres::default_passwd, dbname, addr);
 
-            std::cout << "One\n";       // <- Выводится в stdout
-            postgres::impl C {"postgres",     // <- тут выходит исключение
-                        "youmu",
-                        "bigeye",
-                        {"127.0.0.1","62345"}};
-            std::cout << "Two\n";       // <- Не выводится в stdout
+            this->backend = std::make_shared<postgres::impl>(
+                user.size() ? user : postgres::default_user,
+                passwd.size() ? passwd : postgres::default_passwd, dbname, addr);
+
+            // this->service = ...
+            this->journal = std::make_unique<_journal>(this->backend);
+
             break;
         }
         default:
@@ -50,5 +47,14 @@ db::db(const backends::available backend, const std::string user, const std::str
 }
 
 void db::setup() { this->backend->setup(); }
+
+std::vector<db::_journal::dataLine> db::_journal::read() {
+    this->backend->read();
+    return {};
+}
+
+void db::_journal::write(db::_journal::dataLine line) {
+    this->backend->write();
+}
 
 }  // namespace db

@@ -19,9 +19,7 @@ credetials getDefaults() {
 }
 
 impl::impl(const std::string user, const std::string passwd, const std::string dbname, addr addr) {
-    std::cout << "Three\n";  // <- Не выводится
     try {
-        std::cout << "Four\n";
         this->C = std::make_unique<pqxx::connection>("dbname = " + dbname + " user = " + user +
                                                      " password = " + passwd +
                                                      " host = " + addr.ip + " port = " + addr.port);
@@ -56,6 +54,18 @@ void impl::setup() {
         // ui::trace("New table created");
     } else if (ret != 't')  // Not true of false
         throw excepts::error("Database returns unrecognised response!");
+}
+
+void impl::write() {
+    pqxx::work W{*C};
+    W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
+    W.commit();
+}
+
+void impl::read() const {
+    pqxx::work W{*C};
+    std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
+    std::cout << ret << '\n';
 }
 
 }  // namespace postgres

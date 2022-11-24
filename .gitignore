@@ -1,5 +1,5 @@
 # Project
-build
+build*
 cmake-build-*
 .cache
 CMakeLists.txt.user
