@@ -7,10 +7,6 @@
 
 namespace db {
 
-namespace backends {
-enum available { none, postgres, sqlite };  // NONE!
-}
-
 struct addr {
     std::string ip = "127.0.0.1";
     std::string port = "";
@@ -23,15 +19,41 @@ struct credetials {
     addr address = {};
 };
 
+namespace backends {
+enum available { none, postgres, sqlite };
+}
+
 credetials getDefaults(backends::available backend);
+
+namespace dateLines {
+struct serviceLine {
+    std::string id;
+    std::string datetime;
+    std::string metadata;
+
+    std::string postgresString = "";
+};
+
+struct journalLine {
+    std::string id;
+    std::string datetime;
+    std::string metadata;
+
+    std::string postgresString = "";
+};
+}  // namespace dateLines
 
 // Base class of backend-specific implementation
 class impl {
    public:
     virtual ~impl() = default;
     virtual void setup() = 0;
-    virtual void write() = 0;
-    virtual void read() const = 0;
+
+    virtual void journalWrite(dateLines::journalLine) = 0;
+    virtual std::vector<dateLines::journalLine> journalRead() = 0;
+
+    virtual void serviceWrite(dateLines::serviceLine) = 0;
+    virtual std::vector<dateLines::serviceLine> serviceRead() = 0;
 };
 
 // Main interface
@@ -48,30 +70,13 @@ class db {
     db(const backends::available backend = backends::postgres, const std::string user = "",
        const std::string passwd = "", const std::string dbname = "bigeye", addr addr = {});
 
-    void setup();  // Create some tables // TODO: Autodetect dataLines and tables
+    void setup();
 
-    // Tables:
+    void journalWrite(dateLines::journalLine);
+    std::vector<dateLines::journalLine> journalRead();
 
-    // ...
-
-    class _journal {
-       private:
-        std::shared_ptr<impl> backend;
-
-       public:
-        _journal(std::shared_ptr<impl> backend) : backend(backend) {}
-
-        struct dataLine {
-            std::string id;
-            std::string datetime;
-            std::string metadata;
-        };
-
-        std::vector<dataLine> read();
-        void write(dataLine line);
-    };
-
-    std::unique_ptr<_journal> journal;
+    void serviceWrite(dateLines::serviceLine);
+    std::vector<dateLines::serviceLine> serviceRead();
 };
 
 }  // namespace db

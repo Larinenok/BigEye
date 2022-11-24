@@ -37,6 +37,7 @@ void impl::setup() {
     // ui::trace("Setting up tables...");
     pqxx::work W{*C};
     char ret;
+
     ret = W.query_value<std::string>(
                "SELECT EXISTS ("
                "SELECT FROM pg_tables "
@@ -56,16 +57,32 @@ void impl::setup() {
         throw excepts::error("Database returns unrecognised response!");
 }
 
-void impl::write() {
+// Journal table:
+void impl::journalWrite(dateLines::journalLine) {
     pqxx::work W{*C};
     W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
     W.commit();
 }
-
-void impl::read() const {
+std::vector<dateLines::journalLine> impl::journalRead() {
     pqxx::work W{*C};
-    std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
-    std::cout << ret << '\n';
+    //std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
+    auto ret = W.exec_n(20, "SELECT * FROM journal;");
+    std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
+    return {};
+}
+
+// Service table:
+void impl::serviceWrite(dateLines::serviceLine) {
+    pqxx::work W{*C};
+    W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
+    W.commit();
+}
+std::vector<dateLines::serviceLine> impl::serviceRead() {
+    pqxx::work W{*C};
+    //std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
+    auto ret = W.exec_n(20, "SELECT * FROM journal;");
+    std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
+    return {};
 }
 
 }  // namespace postgres
