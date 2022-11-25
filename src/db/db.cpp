@@ -24,6 +24,7 @@ db::db(const backends::available backend, credetials credetials)
 
 db::db(const backends::available backend, const std::string user, const std::string passwd,
        const std::string dbname, addr addr) {
+    this->currentBackend = backend;
     switch (backend) {
         case backends::sqlite:
             throw excepts::error("SQLite backend is not implemented");
@@ -44,11 +45,12 @@ db::db(const backends::available backend, const std::string user, const std::str
 }
 
 void db::setup() { this->backend->setup(); }
+size_t db::getRowsCount(std::string table) { return this->backend->getRowsCount(table); }
 
-void db::journalWrite(dateLines::journal::line arg) { this->backend->journalWrite(arg); }
-std::vector<dateLines::journal::line> db::journalRead() { return this->backend->journalRead(); }
+void db::journalWrite(dateRows::journal::row arg) { this->backend->journalWrite(arg); }
+std::vector<dateRows::journal::row> db::journalRead(size_t count) { return this->backend->journalRead(count); }
 
-void db::serviceWrite(dateLines::service::line arg) { this->backend->serviceWrite(arg); }
-std::vector<dateLines::service::line> db::serviceRead() { return this->backend->serviceRead(); }
+void db::serviceWrite(dateRows::service::row arg) { this->backend->serviceWrite(arg); }
+std::vector<dateRows::service::row> db::serviceRead(size_t count) { return this->backend->serviceRead(count); }
 
 }  // namespace db

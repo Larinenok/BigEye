@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         
         database.journalWrite({"001", "Wed Nov 23 06:51:57 PM +07 2022", "data:"});
         database.journalWrite({"002", "Wed Nov 23 06:52:33 PM +07 2022", "data:"});
-        auto buff = database.journalRead();
+        auto buff = database.journalRead(database.getRowsCount("journal"));
         for (auto& i : buff) {
             std::cout << "[ " << i.id << " | " << i.datetime << " | " << i.metadata << " ]\n";
         }

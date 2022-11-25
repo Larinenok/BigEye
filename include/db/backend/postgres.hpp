@@ -22,12 +22,13 @@ class impl : public ::db::impl {
     ~impl();
     impl(const std::string user, const std::string passwd, const std::string dbname, addr addr);
     void setup() override;
+    size_t getRowsCount(std::string table) override;
 
-    void journalWrite(dateLines::journal::line) override;
-    std::vector<dateLines::journal::line> journalRead() override;
+    void journalWrite(dateRows::journal::row) override;
+    std::vector<dateRows::journal::row> journalRead(size_t count) override;
 
-    void serviceWrite(dateLines::service::line) override;
-    std::vector<dateLines::service::line> serviceRead() override;
+    void serviceWrite(dateRows::service::row) override;
+    std::vector<dateRows::service::row> serviceRead(size_t count) override;
 };
 
 }  // namespace postgres

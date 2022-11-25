@@ -1,6 +1,7 @@
 #include "db/backend/postgres.hpp"
 
 #include <pqxx/pqxx>
+#include <string>
 
 #include "excepts.hpp"
 #include "ui/feedback.hpp"
@@ -35,8 +36,8 @@ impl::~impl() { this->C->close(); }
 
 void impl::setup() {
     std::vector<std::pair<std::string, std::string>> iter = {
-        {"service", dateLines::service::postgresString},
-        {"journal", dateLines::journal::postgresString}};
+        {"service", dateRows::service::postgresString},
+        {"journal", dateRows::journal::postgresString}};
 
     for (auto& i : iter) {
         pqxx::work W{*C};
@@ -54,31 +55,44 @@ void impl::setup() {
     }
 }
 
+size_t impl::getRowsCount(std::string table) {
+    pqxx::work W{*C};
+    return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM journal"));
+}
+
 // Journal table:
-void impl::journalWrite(dateLines::journal::line dateLine) {
+void impl::journalWrite(dateRows::journal::row dateRow) {
     pqxx::work W{*C};
     W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
     W.commit();
 }
-std::vector<dateLines::journal::line> impl::journalRead() {
+std::vector<dateRows::journal::row> impl::journalRead(size_t count) {
     pqxx::work W{*C};
-    // std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
-    auto ret = W.exec_n(20, "SELECT * FROM journal;");
-    std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
+    auto ret = W.exec_n(count, "SELECT * FROM journal LIMIT " + std::to_string(count) + ";");
+    for(auto i : ret) {
+        std::cout << "[ ";
+        for(int ii = 0; ii < ret.columns(); ii++) 
+            std::cout << i.at(ii) << ' ';
+        std::cout << "]\n";
+    }
     return {};
 }
 
 // Service table:
-void impl::serviceWrite(dateLines::service::line dateLine) {
+void impl::serviceWrite(dateRows::service::row dateRow) {
     pqxx::work W{*C};
-    W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
+    W.exec("INSERT INTO service (test) VALUES ('swing');");
     W.commit();
 }
-std::vector<dateLines::service::line> impl::serviceRead() {
+std::vector<dateRows::service::row> impl::serviceRead(size_t count) {
     pqxx::work W{*C};
-    // std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
-    auto ret = W.exec_n(20, "SELECT * FROM journal;");
-    std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
+    auto ret = W.exec_n(count, "SELECT * FROM service LIMIT " + std::to_string(count) + ";");
+    for(auto i : ret) {
+        std::cout << "[ ";
+        for(int ii = 0; ii < ret.columns(); ii++) 
+            std::cout << i.at(ii) << ' ';
+        std::cout << "]\n";
+    }
     return {};
 }
 

@@ -25,10 +25,10 @@ enum available { none, postgres, sqlite };
 
 credetials getDefaults(backends::available backend);
 
-namespace dateLines {
+namespace dateRows {
 
 namespace service {
-struct line {
+struct row {
     std::string id;
     std::string datetime;
     std::string metadata;
@@ -40,7 +40,7 @@ const std::string sqliteString = "";
 }  // namespace service
 
 namespace journal {
-struct line {
+struct row {
     std::string id;
     std::string datetime;
     std::string metadata;
@@ -56,7 +56,7 @@ const std::string sqliteString = "";
     return dbString;
 }*/
 
-}  // namespace dateLines
+}  // namespace dateRows
 
 // Base class of backend-specific implementation
 class impl {
@@ -64,17 +64,22 @@ class impl {
     virtual ~impl() = default;
     virtual void setup() = 0;
 
-    virtual void journalWrite(dateLines::journal::line) = 0;
-    virtual std::vector<dateLines::journal::line> journalRead() = 0;
+    // Service table
+    virtual void serviceWrite(dateRows::service::row) = 0;
+    virtual std::vector<dateRows::service::row> serviceRead(size_t count) = 0;
 
-    virtual void serviceWrite(dateLines::service::line) = 0;
-    virtual std::vector<dateLines::service::line> serviceRead() = 0;
+    // Journal table
+    virtual void journalWrite(dateRows::journal::row) = 0;
+    virtual std::vector<dateRows::journal::row> journalRead(size_t count) = 0;
+
+    virtual size_t getRowsCount(std::string table) = 0;
 };
 
 // Main interface
 class db {
    private:
     std::shared_ptr<impl> backend;
+    backends::available currentBackend;
 
    public:
     db();
@@ -87,11 +92,13 @@ class db {
 
     void setup();
 
-    void journalWrite(dateLines::journal::line);
-    std::vector<dateLines::journal::line> journalRead();
+    size_t getRowsCount(std::string table);
 
-    void serviceWrite(dateLines::service::line);
-    std::vector<dateLines::service::line> serviceRead();
+    void journalWrite(dateRows::journal::row);
+    std::vector<dateRows::journal::row> journalRead(size_t count);
+
+    void serviceWrite(dateRows::service::row);
+    std::vector<dateRows::service::row> serviceRead(size_t count);
 };
 
 }  // namespace db
