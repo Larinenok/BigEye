@@ -26,7 +26,7 @@ impl::impl(const std::string user, const std::string passwd, const std::string d
         if (!this->C->is_open()) throw excepts::error("Can't open database");
         ui::msg("Opened database successfully: " + static_cast<std::string>(this->C->dbname()));
 
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         throw excepts::error(e.what());
     }
 }
@@ -34,52 +34,49 @@ impl::impl(const std::string user, const std::string passwd, const std::string d
 impl::~impl() { this->C->close(); }
 
 void impl::setup() {
-    // ui::trace("Setting up tables...");
-    pqxx::work W{*C};
-    char ret;
+    std::vector<std::pair<std::string, std::string>> iter = {
+        {"service", dateLines::service::postgresString},
+        {"journal", dateLines::journal::postgresString}};
 
-    ret = W.query_value<std::string>(
-               "SELECT EXISTS ("
-               "SELECT FROM pg_tables "
-               "WHERE schemaname = 'public' AND tablename  = 'journal'"
-               ")")
-              .at(0);
-
-    if (ret == 'f') {  // Table does ot exist; Create
-        W.exec(
-            "CREATE TABLE journal ("
-            "aboba varchar (25),"
-            "bebra varchar (25)"
-            ") ");
-        W.commit();
-        // ui::trace("New table created");
-    } else if (ret != 't')  // Not true of false
-        throw excepts::error("Database returns unrecognised response!");
+    for (auto& i : iter) {
+        pqxx::work W{*C};
+        char ret = W.query_value<std::string>(
+                        "SELECT EXISTS ("
+                            "SELECT FROM pg_tables "
+                                "WHERE schemaname = 'public' AND tablename = '" + i.first + "'"
+                        ")")
+                       .at(0);
+        if (ret == 'f') {
+            // Table does ot exist; Create
+            W.exec("CREATE TABLE " + i.first + " (" + i.second + ") ");
+            W.commit();
+        }
+    }
 }
 
 // Journal table:
-void impl::journalWrite(dateLines::journalLine) {
+void impl::journalWrite(dateLines::journal::line dateLine) {
     pqxx::work W{*C};
     W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
     W.commit();
 }
-std::vector<dateLines::journalLine> impl::journalRead() {
+std::vector<dateLines::journal::line> impl::journalRead() {
     pqxx::work W{*C};
-    //std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
+    // std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
     auto ret = W.exec_n(20, "SELECT * FROM journal;");
     std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
     return {};
 }
 
 // Service table:
-void impl::serviceWrite(dateLines::serviceLine) {
+void impl::serviceWrite(dateLines::service::line dateLine) {
     pqxx::work W{*C};
     W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
     W.commit();
 }
-std::vector<dateLines::serviceLine> impl::serviceRead() {
+std::vector<dateLines::service::line> impl::serviceRead() {
     pqxx::work W{*C};
-    //std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
+    // std::string ret = W.query_value<std::string>("SELECT * FROM journal;");
     auto ret = W.exec_n(20, "SELECT * FROM journal;");
     std::cout << ret.columns() << " " << ret.at(0).at(0) << '\n';
     return {};

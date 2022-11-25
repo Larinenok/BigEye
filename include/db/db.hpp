@@ -26,21 +26,36 @@ enum available { none, postgres, sqlite };
 credetials getDefaults(backends::available backend);
 
 namespace dateLines {
-struct serviceLine {
+
+namespace service {
+struct line {
     std::string id;
     std::string datetime;
     std::string metadata;
-
-    std::string postgresString = "";
 };
+const std::string postgresString =
+    "test varchar (25) ";
 
-struct journalLine {
+const std::string sqliteString = "";
+}  // namespace service
+
+namespace journal {
+struct line {
     std::string id;
     std::string datetime;
     std::string metadata;
-
-    std::string postgresString = "";
 };
+const std::string postgresString =
+    "aboba varchar (25),"
+    "bebra varchar (25) ";
+
+const std::string sqliteString = "";
+}  // namespace journal
+
+/*constexpr std::string_view types(std::string_view& dbString) {}
+    return dbString;
+}*/
+
 }  // namespace dateLines
 
 // Base class of backend-specific implementation
@@ -49,11 +64,11 @@ class impl {
     virtual ~impl() = default;
     virtual void setup() = 0;
 
-    virtual void journalWrite(dateLines::journalLine) = 0;
-    virtual std::vector<dateLines::journalLine> journalRead() = 0;
+    virtual void journalWrite(dateLines::journal::line) = 0;
+    virtual std::vector<dateLines::journal::line> journalRead() = 0;
 
-    virtual void serviceWrite(dateLines::serviceLine) = 0;
-    virtual std::vector<dateLines::serviceLine> serviceRead() = 0;
+    virtual void serviceWrite(dateLines::service::line) = 0;
+    virtual std::vector<dateLines::service::line> serviceRead() = 0;
 };
 
 // Main interface
@@ -72,11 +87,11 @@ class db {
 
     void setup();
 
-    void journalWrite(dateLines::journalLine);
-    std::vector<dateLines::journalLine> journalRead();
+    void journalWrite(dateLines::journal::line);
+    std::vector<dateLines::journal::line> journalRead();
 
-    void serviceWrite(dateLines::serviceLine);
-    std::vector<dateLines::serviceLine> serviceRead();
+    void serviceWrite(dateLines::service::line);
+    std::vector<dateLines::service::line> serviceRead();
 };
 
 }  // namespace db

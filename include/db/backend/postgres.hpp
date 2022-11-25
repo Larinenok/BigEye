@@ -23,11 +23,11 @@ class impl : public ::db::impl {
     impl(const std::string user, const std::string passwd, const std::string dbname, addr addr);
     void setup() override;
 
-    void journalWrite(dateLines::journalLine) override;
-    std::vector<dateLines::journalLine> journalRead() override;
+    void journalWrite(dateLines::journal::line) override;
+    std::vector<dateLines::journal::line> journalRead() override;
 
-    void serviceWrite(dateLines::serviceLine) override;
-    std::vector<dateLines::serviceLine> serviceRead() override;
+    void serviceWrite(dateLines::service::line) override;
+    std::vector<dateLines::service::line> serviceRead() override;
 };
 
 }  // namespace postgres

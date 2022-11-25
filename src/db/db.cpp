@@ -45,10 +45,10 @@ db::db(const backends::available backend, const std::string user, const std::str
 
 void db::setup() { this->backend->setup(); }
 
-void db::journalWrite(dateLines::journalLine arg) { this->backend->journalWrite(arg); }
-std::vector<dateLines::journalLine> db::journalRead() { return this->backend->journalRead(); }
+void db::journalWrite(dateLines::journal::line arg) { this->backend->journalWrite(arg); }
+std::vector<dateLines::journal::line> db::journalRead() { return this->backend->journalRead(); }
 
-void db::serviceWrite(dateLines::serviceLine arg) { this->backend->serviceWrite(arg); }
-std::vector<dateLines::serviceLine> db::serviceRead() { return this->backend->serviceRead(); }
+void db::serviceWrite(dateLines::service::line arg) { this->backend->serviceWrite(arg); }
+std::vector<dateLines::service::line> db::serviceRead() { return this->backend->serviceRead(); }
 
 }  // namespace db
