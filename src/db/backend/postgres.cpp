@@ -1,5 +1,6 @@
 #include "db/backend/postgres.hpp"
 
+#include <db/db.hpp>
 #include <pqxx/pqxx>
 #include <string>
 
@@ -12,6 +13,7 @@ namespace postgres {
 
 credetials getDefaults() {
     credetials ret;
+    ret.backend = backends::postgres;
     ret.user = default_user;
     ret.passwd = default_passwd;
     ret.dbname = "";

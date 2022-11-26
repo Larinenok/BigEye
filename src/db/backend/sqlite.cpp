@@ -1,5 +1,6 @@
 #include "db/backend/sqlite.hpp"
 
+#include <string>
 #include "excepts.hpp"
 #include "ui/feedback.hpp"
 
@@ -9,19 +10,18 @@ namespace sqlite {
 
 credetials getDefaults() {
     credetials ret;
+    ret.backend = backends::sqlite;
     ret.user = default_user;
     ret.passwd = default_passwd;
     ret.dbname = "";
-    ret.address = {"", default_port};
+    ret.address = {};
     return ret;
 }
 
-impl::impl(const std::string user, const std::string passwd, const std::string dbname, addr addr) {
-    throw excepts::error("SQLite is not implemented!");
-}
+impl::impl(const std::string user, const std::string passwd, const std::string dbname, addr addr) {}
 
-void impl::setup() { throw excepts::error("SQLite is not implemented!"); }
+impl::~impl() {}
 
-}  // namespace sqlite
+}  // namespace postgres
 
 }  // namespace db

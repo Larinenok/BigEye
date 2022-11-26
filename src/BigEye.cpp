@@ -24,29 +24,28 @@ int main(int argc, char *argv[]) {
     ui::msg("Msg4");
 
     // Database test
+    db::db database{db::backends::postgres,
+                    "postgres",
+                    "youmuu",
+                    "bigeye",
+                    {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
     try {
-        db::db database{db::backends::postgres,
-                        "postgres",
-                        "youmu",
-                        "bigeye",
-                        {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
-        
-        database.setup();
-        
-        database.journalWrite({"001", "Wed Nov 23 06:51:57 PM +07 2022", "data:"});
-        database.journalWrite({"002", "Wed Nov 23 06:52:33 PM +07 2022", "data:"});
-        auto buff = database.journalRead(database.getRowsCount("journal"));
-        for (auto& i : buff) {
-            std::cout << "[ " << i.id << " | " << i.datetime << " | " << i.metadata << " ]\n";
-        }
-
+        database.connect();
     } catch (std::exception &e) {
         ui::error(e.what());
         ui::error("Something goes whong while BigEye trying to access database! Using DryRun mode!");
         runtime::FLAG_dryRun = true;
+        database = {};
+    }
+    database.setup();
+
+    database.journalWrite({"001", "Wed Nov 23 06:51:57 PM +07 2022", "data:"});
+    database.journalWrite({"002", "Wed Nov 23 06:52:33 PM +07 2022", "data:"});
+    auto buff = database.journalRead(database.getRowsCount("journal"));
+    for (auto& i : buff) {
+        std::cout << "[ " << i.id << " | " << i.datetime << " | " << i.metadata << " ]\n";
     }
 
-    // exit(-1);
     cv::Mat frame;
     int deviceID = 0;
 

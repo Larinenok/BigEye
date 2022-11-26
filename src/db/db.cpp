@@ -5,6 +5,7 @@
 #include "db/backend/postgres.hpp"
 #include "db/backend/sqlite.hpp"
 #include "excepts.hpp"
+#include "runtime.hpp"
 
 namespace db {
 
@@ -19,31 +20,52 @@ credetials getDefaults(backends::available backend) {
     }
 }
 
-db::db(const backends::available backend, credetials credetials)
-    : db::db(backend, credetials.user, credetials.passwd, credetials.dbname, credetials.address){};
-
-db::db(const backends::available backend, const std::string user, const std::string passwd,
+db::db(backends::available backend, const std::string user, const std::string passwd,
        const std::string dbname, addr addr) {
-    this->currentBackend = backend;
+    
+    credetials defaults;
     switch (backend) {
+        case backends::postgres: 
+            defaults = postgres::getDefaults();
+            break;
+        
+        case backends::sqlite: 
+            sqlite::getDefaults();
+            break;
+            
+        default:
+            break;
+    }
+
+    this->login.backend = backend;
+    this->login.user = (user.size()) ? user : defaults.user;
+    this->login.passwd = (passwd.size()) ? passwd : defaults.passwd;
+    this->login.dbname = (dbname.size()) ? dbname : defaults.dbname;
+    this->login.address = addr; // Later
+}
+
+void db::connect() {
+    backends::available _backend = this->login.backend;
+    if (runtime::FLAG_dryRun) _backend = backends::none;
+    
+    switch (_backend) {
         case backends::sqlite:
             throw excepts::error("SQLite backend is not implemented");
+            this->backend = std::make_shared<impl>(); // REPLACE
             break;
 
         case backends::postgres: {
-            if (!addr.port.length()) addr.port = postgres::default_port;
-
             this->backend = std::make_shared<postgres::impl>(
-                user.size() ? user : postgres::default_user,
-                passwd.size() ? passwd : postgres::default_passwd, dbname, addr);
+                this->login.user.size() ? this->login.user : postgres::default_user,
+                this->login.passwd.size() ? this->login.passwd : postgres::default_passwd, this->login.dbname, this->login.address);
             break;
         }
 
         default:
-            break;
+            this->backend = std::make_shared<impl>();
     };
+    
 }
-
 void db::setup() { this->backend->setup(); }
 size_t db::getRowsCount(std::string table) { return this->backend->getRowsCount(table); }
 
