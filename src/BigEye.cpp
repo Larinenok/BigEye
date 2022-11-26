@@ -4,6 +4,7 @@
 #include "engine/engine.hpp"
 #include "excepts.hpp"
 #include "input/stream.hpp"
+#include "input/camera.hpp"
 #include "runtime.hpp"
 #include "ui/feedback.hpp"
 #include "ui/window.hpp"
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
     // Database test
     db::db database{db::backends::postgres,
                     "postgres",
-                    "youmuu",
+                    "youmu",
                     "bigeye",
                     {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
     try {
@@ -47,7 +48,9 @@ int main(int argc, char *argv[]) {
     }
 
     cv::Mat frame;
-    int deviceID = 0;
+    auto cameraList = input::getCameraList();
+    input::cameraDevice camera = cameraList.at(0);
+    int deviceID = camera.descriptor;
 
     cv::CascadeClassifier faceCascade;
     faceCascade.load("./haarcascade_frontalface_default.xml");
@@ -56,9 +59,9 @@ int main(int argc, char *argv[]) {
     while (true)
     {
         cap.read(frame);
-        resize(frame, frame, cv::Size(320, 180), 0, 0, cv::INTER_CUBIC);
+        resize(frame, frame, cv::Size(camera.mode.y, camera.mode.x), 0, 0, cv::INTER_CUBIC);
 
-        imshow("Live", engine::face_detection(frame, faceCascade));
+        imshow(camera.name, engine::face_detection(frame, faceCascade));
         if (cv::waitKey(5) == 27) break; // ESC
     }
 }
