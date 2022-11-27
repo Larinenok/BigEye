@@ -1,7 +1,6 @@
 #include "db/backend/sqlite.hpp"
 
 #include <string>
-#include "excepts.hpp"
 #include "ui/feedback.hpp"
 
 namespace db {

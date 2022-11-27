@@ -30,37 +30,41 @@ struct credetials {
 
 credetials getDefaults(backends::available backend);
 
-namespace dateRows {
+namespace dataRows {
 
 namespace service {
+enum types { connectEvent = 0, disconnectEvent = 1, exceptionEvent = 2 };
 struct row {
-    std::string id;
-    std::string datetime;
-    std::string metadata;
+    uint32_t id = 0; // will be generated automaticly
+    types type;
+    std::string data = {};
 };
-const std::string postgresString = "test varchar (25) ";
+const std::string postgresString =
+    "id int GENERATED ALWAYS AS IDENTITY,"
+    "type smallint,"
+    "data varchar (255) ";
 
-const std::string sqliteString = "";
+const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
 }  // namespace service
 
 namespace journal {
 struct row {
-    std::string id;
+    uint32_t id = 0; // will be generated automaticly
     std::string datetime;
     std::string metadata;
+    void* image = nullptr;
 };
 const std::string postgresString =
-    "aboba varchar (25),"
-    "bebra varchar (25) ";
+    "id int GENERATED ALWAYS AS IDENTITY,"
+    "datetime varchar (32),"
+    "metadata varchar (255),"
+    "image bytea DEFAULT NULL ";
 
-const std::string sqliteString = "";
+const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
+
 }  // namespace journal
 
-/*constexpr std::string_view types(std::string_view& dbString) {}
-    return dbString;
-}*/
-
-}  // namespace dateRows
+}  // namespace dataRows
 
 // Base class of backend-specific implementation
 class impl {
@@ -69,12 +73,12 @@ class impl {
     virtual void setup(){};
 
     // Service table
-    virtual void serviceWrite(dateRows::service::row){};
-    virtual std::vector<dateRows::service::row> serviceRead(size_t count) { return {}; };
+    virtual void serviceWrite(dataRows::service::row){};
+    virtual std::vector<dataRows::service::row> serviceRead(size_t count) { return {}; };
 
     // Journal table
-    virtual void journalWrite(dateRows::journal::row){};
-    virtual std::vector<dateRows::journal::row> journalRead(size_t count) { return {}; };
+    virtual void journalWrite(dataRows::journal::row){};
+    virtual std::vector<dataRows::journal::row> journalRead(size_t count) { return {}; };
 
     virtual size_t getRowsCount(std::string table) { return {}; };
 };
@@ -94,11 +98,11 @@ class db {
 
     size_t getRowsCount(std::string table);
 
-    void journalWrite(dateRows::journal::row);
-    std::vector<dateRows::journal::row> journalRead(size_t count);
+    void journalWrite(dataRows::journal::row);
+    std::vector<dataRows::journal::row> journalRead(size_t count);
 
-    void serviceWrite(dateRows::service::row);
-    std::vector<dateRows::service::row> serviceRead(size_t count);
+    void serviceWrite(dataRows::service::row);
+    std::vector<dataRows::service::row> serviceRead(size_t count);
 };
 
 }  // namespace db

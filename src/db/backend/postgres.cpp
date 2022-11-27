@@ -38,16 +38,16 @@ impl::~impl() { this->C->close(); }
 
 void impl::setup() {
     std::vector<std::pair<std::string, std::string>> iter = {
-        {"service", dateRows::service::postgresString},
-        {"journal", dateRows::journal::postgresString}};
+        {"service", dataRows::service::postgresString},
+        {"journal", dataRows::journal::postgresString}};
 
     for (auto& i : iter) {
         pqxx::work W{*C};
         char ret = W.query_value<std::string>(
                         "SELECT EXISTS ("
-                            "SELECT FROM pg_tables "
-                                "WHERE schemaname = 'public' AND tablename = '" + i.first + "'"
-                        ")")
+                        "SELECT FROM pg_tables "
+                        "WHERE schemaname = 'public' AND tablename = '" +
+                        i.first + "')")
                        .at(0);
         if (ret == 'f') {
             // Table does ot exist; Create
@@ -62,40 +62,51 @@ size_t impl::getRowsCount(std::string table) {
     return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM journal"));
 }
 
-// Journal table:
-void impl::journalWrite(dateRows::journal::row dateRow) {
+// Service table:
+void impl::serviceWrite(dataRows::service::row dataRow) {
     pqxx::work W{*C};
-    W.exec("INSERT INTO journal (aboba, bebra) VALUES ('swing', 'yellow');");
+    W.exec("INSERT INTO service (type, data) VALUES (" +
+           std::to_string(static_cast<int>(dataRow.type)) + ", '" + dataRow.data + "');");
     W.commit();
 }
-std::vector<dateRows::journal::row> impl::journalRead(size_t count) {
+std::vector<dataRows::service::row> impl::serviceRead(size_t count) {
+    std::vector<dataRows::service::row> ret;
     pqxx::work W{*C};
-    auto ret = W.exec_n(count, "SELECT * FROM journal LIMIT " + std::to_string(count) + ";");
-    for(auto i : ret) {
-        std::cout << "[ ";
-        for(int ii = 0; ii < ret.columns(); ii++) 
-            std::cout << i.at(ii) << ' ';
-        std::cout << "]\n";
+    auto response = W.exec_n(count, "SELECT * FROM service LIMIT " + std::to_string(count) + ";");
+
+    for (auto i : response) {
+        dataRows::service::row row;
+        row.id = std::stoul(i.at(0).c_str());
+        row.type = static_cast<dataRows::service::types>(i.at(1).num());
+        row.data = i.at(2).c_str();
+        ret.push_back(row);
     }
-    return {};
+
+    return ret;
 }
 
-// Service table:
-void impl::serviceWrite(dateRows::service::row dateRow) {
+// Journal table:
+void impl::journalWrite(dataRows::journal::row dataRow) {
     pqxx::work W{*C};
-    W.exec("INSERT INTO service (test) VALUES ('swing');");
+    W.exec("INSERT INTO journal (datetime, metadata) VALUES ('" + dataRow.datetime + "', '" +
+           dataRow.metadata + "');");
     W.commit();
 }
-std::vector<dateRows::service::row> impl::serviceRead(size_t count) {
+std::vector<dataRows::journal::row> impl::journalRead(size_t count) {
+    std::vector<dataRows::journal::row> ret;
     pqxx::work W{*C};
-    auto ret = W.exec_n(count, "SELECT * FROM service LIMIT " + std::to_string(count) + ";");
-    for(auto i : ret) {
-        std::cout << "[ ";
-        for(int ii = 0; ii < ret.columns(); ii++) 
-            std::cout << i.at(ii) << ' ';
-        std::cout << "]\n";
+    auto response = W.exec_n(count, "SELECT * FROM journal LIMIT " + std::to_string(count) + ";");
+
+    for (auto i : response) {
+        dataRows::journal::row row;
+        row.id = std::stoul(i.at(0).c_str());
+        row.datetime = i.at(1).c_str();
+        row.metadata = i.at(2).c_str();
+        row.image = nullptr;
+        ret.push_back(row);
     }
-    return {};
+
+    return ret;
 }
 
 }  // namespace postgres

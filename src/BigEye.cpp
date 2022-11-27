@@ -9,6 +9,7 @@
 #include "ui/feedback.hpp"
 #include "ui/window.hpp"
 #include "utils/args.hpp"
+#include "utils/host.hpp"
 
 // Runtime defaults
 bool runtime::FLAG_headless = false;
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
     ui::warn("Msg3");
     ui::msg("Msg4");
 
-    // Database test
+    // Database connect
     db::db database{db::backends::postgres,
                     "postgres",
                     "youmu",
@@ -40,13 +41,23 @@ int main(int argc, char *argv[]) {
     }
     database.setup();
 
-    database.journalWrite({"001", "Wed Nov 23 06:51:57 PM +07 2022", "data:"});
-    database.journalWrite({"002", "Wed Nov 23 06:52:33 PM +07 2022", "data:"});
+    // Database test...
+    database.journalWrite({0, utils::getDatetime(), "data1:"});
+    database.journalWrite({0, utils::getDatetime(), "data2:"});
     auto buff = database.journalRead(database.getRowsCount("journal"));
     for (auto& i : buff) {
-        std::cout << "[ " << i.id << " | " << i.datetime << " | " << i.metadata << " ]\n";
+        std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
     }
+    std::cout << '\n';
 
+    database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime()});
+    database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime()});
+    auto bufff = database.serviceRead(database.getRowsCount("service"));
+    for (auto& i : bufff) {
+        std::cout << "[ " << std::to_string(i.id) << " | "<< i.type << " | " << i.data << " ]\n";
+    }
+    exit(-1);
+    // Engine test...
     cv::Mat frame;
     auto cameraList = input::getCameraList();
     input::cameraDevice camera = cameraList.at(0);
