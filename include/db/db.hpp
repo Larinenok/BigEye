@@ -33,10 +33,10 @@ credetials getDefaults(backends::available backend);
 namespace dataRows {
 
 namespace service {
-enum types { connectEvent = 0, disconnectEvent = 1, exceptionEvent = 2 };
+enum types { exceptionEvent = 0, connectEvent = 1, disconnectEvent = 2, broadcastEvent = 3 };
 struct row {
     uint32_t id = 0; // will be generated automaticly
-    types type;
+    types type = exceptionEvent;
     std::string data = {};
 };
 const std::string postgresString =

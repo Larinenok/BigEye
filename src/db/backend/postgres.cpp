@@ -77,7 +77,7 @@ std::vector<dataRows::service::row> impl::serviceRead(size_t count) {
     for (auto i : response) {
         dataRows::service::row row;
         row.id = std::stoul(i.at(0).c_str());
-        row.type = static_cast<dataRows::service::types>(i.at(1).num());
+        row.type = static_cast<dataRows::service::types>(i.at(1).get<int>().value());
         row.data = i.at(2).c_str();
         ret.push_back(row);
     }

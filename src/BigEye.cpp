@@ -42,19 +42,20 @@ int main(int argc, char *argv[]) {
     database.setup();
 
     // Database test...
-    database.journalWrite({0, utils::getDatetime(), "data1:"});
-    database.journalWrite({0, utils::getDatetime(), "data2:"});
-    auto buff = database.journalRead(database.getRowsCount("journal"));
-    for (auto& i : buff) {
-        std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
-    }
-    std::cout << '\n';
-
+    std::cout << "\t[Service table]\n";
     database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime()});
     database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime()});
     auto bufff = database.serviceRead(database.getRowsCount("service"));
     for (auto& i : bufff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.type << " | " << i.data << " ]\n";
+    }
+
+    std::cout << "\n\t[Journal table]\n";
+    database.journalWrite({0, utils::getDatetime(), "data1:"});
+    database.journalWrite({0, utils::getDatetime(), "data2:"});
+    auto buff = database.journalRead(database.getRowsCount("journal"));
+    for (auto& i : buff) {
+        std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
     }
     exit(-1);
     // Engine test...
