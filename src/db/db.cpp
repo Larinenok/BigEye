@@ -9,6 +9,12 @@
 
 namespace db {
 
+void addr::fromRemoteHost(std::string string) {
+    size_t colonPos = string.rfind(':');
+    this->ip = string.substr(0, colonPos);
+    this->port = string.substr(colonPos+1);
+}
+
 credetials getDefaults(backends::available backend) {
     switch (backend) {
         case backends::postgres:

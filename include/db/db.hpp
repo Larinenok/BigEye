@@ -16,8 +16,9 @@ struct addr {
     std::string port = "";
 
     std::string path = "";
-
     bool pathPrefered = false;
+
+    void fromRemoteHost(std::string);
 };
 
 struct credetials {

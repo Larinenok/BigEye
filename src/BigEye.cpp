@@ -14,28 +14,41 @@
 // Runtime defaults
 bool runtime::FLAG_headless = false;
 bool runtime::FLAG_dryRun   = false;
+
 std::string runtime::KEY_db_backend;
 std::string runtime::KEY_db_address;
 std::string runtime::KEY_db_user;
 std::string runtime::KEY_db_passwd;
 std::string runtime::KEY_db_name;
 
+db::backends::available backend;
+
 int main(int argc, char *argv[]) {
-    // Args parsing. It may change runtime::FLAG_*
+// Args parsing. It may change runtime::FLAG_*
     utils::parseArgs(argc, argv);
 
-    // QMessageBox test...
+// QMessageBox test...
     ui::error("Msg1");
     ui::info("Msg2");
     ui::warn("Msg3");
     ui::msg("Msg4");
 
-    // Database connect
-    db::db database{db::backends::postgres,
-                    "postgres",
-                    "youmu",
-                    "bigeye",
-                    {"127.0.0.1", db::getDefaults(db::backends::postgres).address.port}};
+// Database connect
+    // Arg string to backend
+    backend = db::backends::none;
+    if (runtime::KEY_db_backend == "postgres") backend = db::backends::postgres;
+    if (runtime::KEY_db_backend == "sqlite") backend = db::backends::sqlite;
+
+    // Arg string to addr
+    db::addr remoteHost{};
+    remoteHost.fromRemoteHost(runtime::KEY_db_address);
+
+    // Connect
+    db::db database{backend,
+                    runtime::KEY_db_user,
+                    runtime::KEY_db_passwd,
+                    runtime::KEY_db_name,
+                    remoteHost};
     try {
         database.connect();
     } catch (std::exception &e) {
@@ -46,11 +59,14 @@ int main(int argc, char *argv[]) {
     }
     database.setup();
 
-    // Database test...
+// Database test...
     std::cout << "\t[Service table]\n";
     database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime()});
     database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime()});
-    auto bufff = database.serviceRead(database.getRowsCount("service"));
+    std::cout << "tracepoint1\n";
+    auto _tmp = database.getRowsCount("service"); // TOO SLOW
+    std::cout << "tracepoint2\n";
+    auto bufff = database.serviceRead(_tmp); // TOO SLOW
     for (auto& i : bufff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.type << " | " << i.data << " ]\n";
     }
@@ -58,12 +74,17 @@ int main(int argc, char *argv[]) {
     std::cout << "\n\t[Journal table]\n";
     database.journalWrite({0, utils::getDatetime(), "data1:"});
     database.journalWrite({0, utils::getDatetime(), "data2:"});
-    auto buff = database.journalRead(database.getRowsCount("journal"));
+    std::cout << "tracepoint1\n";
+    auto __tmp = database.getRowsCount("journal"); // TOO SLOW
+    std::cout << "tracepoint2\n";
+    auto buff = database.journalRead(__tmp); // TOO SLOW
     for (auto& i : buff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
     }
-    // exit(-1);
-    // Engine test...
+
+    exit(-1);
+
+// Engine test...
     cv::Mat frame;
     auto cameraList = input::getCameraList();
     input::cameraDevice camera = cameraList.at(0);
