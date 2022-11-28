@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     for (auto& i : buff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
     }
-    exit(-1);
+    // exit(-1);
     // Engine test...
     cv::Mat frame;
     auto cameraList = input::getCameraList();
