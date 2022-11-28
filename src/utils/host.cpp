@@ -1,7 +1,10 @@
 #include "utils/host.hpp"
 
-#include <windows.h>
-
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <unistd.h>
+#endif
 
 #include <cstdlib>
 #include <ctime>
@@ -11,13 +14,7 @@ namespace utils {
 
 std::string getHostname() {
     char buff[32];
-
-#ifdef _WIN32
     gethostname(buff, 32);
-#else
-    gethostname(buff, 32);
-#endif
-
     return static_cast<std::string>(buff);
 }
 
