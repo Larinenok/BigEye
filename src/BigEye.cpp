@@ -14,6 +14,11 @@
 // Runtime defaults
 bool runtime::FLAG_headless = false;
 bool runtime::FLAG_dryRun   = false;
+std::string runtime::KEY_db_backend;
+std::string runtime::KEY_db_address;
+std::string runtime::KEY_db_user;
+std::string runtime::KEY_db_passwd;
+std::string runtime::KEY_db_name;
 
 int main(int argc, char *argv[]) {
     // Args parsing. It may change runtime::FLAG_*
