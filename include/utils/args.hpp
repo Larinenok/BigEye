@@ -52,7 +52,7 @@ private:
     std::vector<option> options;
 
 public:
-    int option_name_length;
+    int option_name_length = 0;
     
 public:
     option_description(const std::string &description);
