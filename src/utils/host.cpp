@@ -1,6 +1,7 @@
 #include "utils/host.hpp"
 
-#include <unistd.h>
+#include <windows.h>
+
 
 #include <cstdlib>
 #include <ctime>
@@ -12,7 +13,7 @@ std::string getHostname() {
     char buff[32];
 
 #ifdef _WIN32
-    GetComputerName(buff, 32);
+    gethostname(buff, 32);
 #else
     gethostname(buff, 32);
 #endif
