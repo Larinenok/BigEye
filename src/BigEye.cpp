@@ -61,8 +61,8 @@ int main(int argc, char *argv[]) {
 
 // Database test...
     std::cout << "\t[Service table]\n";
-    database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime()});
-    database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime()});
+    database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime() + ";" + utils::getHostname()});
+    database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime() + ";" + utils::getHostname()});
     std::cout << "tracepoint1\n";
     auto _tmp = database.getRowsCount("service"); // TOO SLOW
     std::cout << "tracepoint2\n";
