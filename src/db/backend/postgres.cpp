@@ -81,16 +81,17 @@ std::vector<dataRows::service::row> impl::serviceRead(size_t count) {
         row.data = i.at(2).c_str();
         ret.push_back(row);
     }
-
     return ret;
 }
 
 // Journal table:
 void impl::journalWrite(dataRows::journal::row dataRow) {
+    std::cout << "enter\n";
     pqxx::work W{*C};
     W.exec("INSERT INTO journal (datetime, metadata) VALUES ('" + dataRow.datetime + "', '" +
            dataRow.metadata + "');");
     W.commit();
+    std::cout << "out\n";
 }
 std::vector<dataRows::journal::row> impl::journalRead(size_t count) {
     std::vector<dataRows::journal::row> ret;

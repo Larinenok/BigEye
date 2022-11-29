@@ -59,40 +59,37 @@ int main(int argc, char *argv[]) {
     }
     database.setup();
 
+// Looking for cameras
+    auto cameraList = input::getCameraList();
+    database.serviceWrite({
+        0,
+        db::dataRows::service::types::connectEvent,
+        utils::getDatetime() + ";" + utils::getHostname() + ";" + std::to_string(cameraList.size())
+    });
+
 // Database test...
     std::cout << "\t[Service table]\n";
-    database.serviceWrite({0, db::dataRows::service::types::connectEvent, utils::getDatetime() + ";" + utils::getHostname()});
-    database.serviceWrite({0, db::dataRows::service::types::disconnectEvent, utils::getDatetime() + ";" + utils::getHostname()});
-    std::cout << "tracepoint1\n";
-    auto _tmp = database.getRowsCount("service"); // TOO SLOW
-    std::cout << "tracepoint2\n";
-    auto bufff = database.serviceRead(_tmp); // TOO SLOW
+    auto bufff = database.serviceRead(database.getRowsCount("service"));
     for (auto& i : bufff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.type << " | " << i.data << " ]\n";
     }
 
     std::cout << "\n\t[Journal table]\n";
-    database.journalWrite({0, utils::getDatetime(), "data1:"});
-    database.journalWrite({0, utils::getDatetime(), "data2:"});
-    std::cout << "tracepoint1\n";
-    auto __tmp = database.getRowsCount("journal"); // TOO SLOW
-    std::cout << "tracepoint2\n";
-    auto buff = database.journalRead(__tmp); // TOO SLOW
+    auto buff = database.journalRead(database.getRowsCount("journal"));
     for (auto& i : buff) {
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
     }
 
-    //exit(-1);
-
 // Engine test...
     cv::Mat frame;
-    auto cameraList = input::getCameraList();
     input::cameraDevice camera = cameraList.at(0);
     int deviceID = camera.descriptor;
 
     cv::CascadeClassifier faceCascade;
     faceCascade.load("./haarcascade_frontalface_default.xml");
     cv::VideoCapture cap = input::openCamera(deviceID);
+
+    database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
 
     while (true)
     {
@@ -102,4 +99,14 @@ int main(int argc, char *argv[]) {
         imshow(camera.name, engine::face_detection(frame, faceCascade));
         if (cv::waitKey(5) == 27) break; // ESC
     }
+
+// Disconnecting
+    database.serviceWrite({
+        0,
+        db::dataRows::service::types::disconnectEvent,
+        utils::getHostname() + ";" + utils::getDatetime()
+    });
+    //database.disconnect();
+
+    return 0;
 }
