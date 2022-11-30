@@ -71,6 +71,7 @@ const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling.
 class impl {
    public:
     virtual ~impl() = default;
+    virtual void close(){};
     virtual void setup(){};
 
     // Service table
@@ -95,6 +96,7 @@ class db {
        const std::string passwd = "", const std::string dbname = "bigeye", addr addr = {});
 
     void connect();
+    void disconnect();
     void setup();
 
     size_t getRowsCount(std::string table);

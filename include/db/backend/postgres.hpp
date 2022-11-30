@@ -21,6 +21,7 @@ class impl : public ::db::impl {
    public:
     ~impl();
     impl(const std::string user, const std::string passwd, const std::string dbname, addr addr);
+    void close() override;
     void setup() override;
     size_t getRowsCount(std::string table) override;
 

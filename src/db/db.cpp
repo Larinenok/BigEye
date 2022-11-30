@@ -71,6 +71,9 @@ void db::connect() {
             this->backend = std::make_shared<impl>();
     };
 }
+
+void db::disconnect() { this->backend->close(); }
+
 void db::setup() { this->backend->setup(); }
 size_t db::getRowsCount(std::string table) { return this->backend->getRowsCount(table); }
 

@@ -67,18 +67,16 @@ int main(int argc, char *argv[]) {
         utils::getDatetime() + ";" + utils::getHostname() + ";" + std::to_string(cameraList.size())
     });
 
-// Database test...
+// Database lookup
     std::cout << "\t[Service table]\n";
-    auto bufff = database.serviceRead(database.getRowsCount("service"));
-    for (auto& i : bufff) {
+    auto serviceDump = database.serviceRead(database.getRowsCount("service"));
+    for (auto& i : serviceDump)
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.type << " | " << i.data << " ]\n";
-    }
 
     std::cout << "\n\t[Journal table]\n";
-    auto buff = database.journalRead(database.getRowsCount("journal"));
-    for (auto& i : buff) {
+    auto journalDump = database.journalRead(database.getRowsCount("journal"));
+    for (auto& i : journalDump)
         std::cout << "[ " << std::to_string(i.id) << " | "<< i.datetime << " | " << i.metadata << " ]\n";
-    }
 
 // Engine test...
     cv::Mat frame;
@@ -91,8 +89,7 @@ int main(int argc, char *argv[]) {
 
     database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
 
-    while (true)
-    {
+    while (true) {
         cap.read(frame);
         resize(frame, frame, cv::Size(camera.mode.y, camera.mode.x), 0, 0, cv::INTER_CUBIC);
 
@@ -106,7 +103,7 @@ int main(int argc, char *argv[]) {
         db::dataRows::service::types::disconnectEvent,
         utils::getHostname() + ";" + utils::getDatetime()
     });
-    //database.disconnect();
+    database.disconnect();
 
     return 0;
 }

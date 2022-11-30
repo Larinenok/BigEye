@@ -36,6 +36,8 @@ impl::impl(const std::string user, const std::string passwd, const std::string d
 
 impl::~impl() { this->C->close(); }
 
+void impl::close() { this->C->close(); }
+
 void impl::setup() {
     std::vector<std::pair<std::string, std::string>> iter = {
         {"service", dataRows::service::postgresString},
@@ -59,7 +61,7 @@ void impl::setup() {
 
 size_t impl::getRowsCount(std::string table) {
     pqxx::work W{*C};
-    return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM journal"));
+    return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM " + table));
 }
 
 // Service table:
