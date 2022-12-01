@@ -27,10 +27,8 @@ function (no_msvc)
             add_compile_options(-fsanitize=undefined -fsanitize=address)
             add_link_options(-fsanitize=undefined -fsanitize=address)
         endif ()
-
     else ()
         add_compile_options(-O3)
-
     endif ()
 
 endfunction()
@@ -135,6 +133,10 @@ endif ()
 target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
 
 ### POST-TRANSACTION TASKS ###
-message (">> Download OpenCV face-detection haarcascade...")
+message (">> Downloading latest OpenCV face-detection files...")
 set     (BE_OPENCV_HCASCADE_URL "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml")
+set     (BE_OPENCV_DEPLOYPROTO_URL "https://raw.githubusercontent.com/opencv/opencv/master/samples/dnn/face_detector/deploy.prototxt")
+set     (BE_OPENCV_CAFFEMODEL_URL "https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel")
 file    (DOWNLOAD ${BE_OPENCV_HCASCADE_URL} "./haarcascade_frontalface_default.xml")
+file    (DOWNLOAD ${BE_OPENCV_DEPLOYPROTO_URL} "./deploy.prototxt")
+file    (DOWNLOAD ${BE_OPENCV_CAFFEMODEL_URL} "./res10_300x300_ssd_iter_140000_fp16.caffemodel")

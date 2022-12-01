@@ -8,9 +8,9 @@ namespace input {
 const uint8_t searchRange = 32;
 
 struct cameraMode {
-   unsigned int x = 0;
-   unsigned int y = 0;
-   unsigned int fps = 0;
+    unsigned int x = 0;
+    unsigned int y = 0;
+    unsigned int fps = 0;
 };
 
 struct cameraDevice {
