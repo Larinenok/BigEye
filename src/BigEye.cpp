@@ -101,6 +101,7 @@ int main(int argc, char* argv[]) {
     cv::Mat frame;
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
+    const double freq = cv::getTickFrequency() / 1000;
     while (true) {
         cap.read(frame);
 
@@ -109,37 +110,32 @@ int main(int argc, char* argv[]) {
         /// Pass the image to network
         net.setInput(cv::dnn::blobFromImage(frame, inScaleFactor, cv::Size(inWidth, inHeight), meanVal, false, false), "data");
 
-        // Вычисляем вывод, это 4-мерное число, строки и столбцы могут содержать только 2 измерения,
-        // поэтому они здесь не используются и устанавливаются на -1
         cv::Mat detection = net.forward("detection_out");
         std::cout << cv::getTickFrequency() << std::endl;
         std::vector<double> layersTimings;
         
-        /// Используется для возврата частоты процессора. получить Tick Frequency. Единица
-        /// измерения здесь - секунды, то есть количество повторений за одну секунду.
-        double freq = cv::getTickFrequency() / 1000;
-        double time = net.getPerfProfile(layersTimings) / freq;
+        double frameTime = net.getPerfProfile(layersTimings) / freq;
         
         cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F,
-                             detection.ptr<float>());  // Матрица 101 * 7
+                             detection.ptr<float>());
 
+        /// Constructing stats msg
         std::ostringstream ss;
-        ss << "FPS: " << 1000 / time << " ; time: " << time << " ms";
+        ss << "FPS: " << 1000 / frameTime << " ; frameTime: " << frameTime << " ms";
         putText(frame, ss.str(), cv::Point(20, 20), 0, 0.5, cv::Scalar(0, 0, 255));
 
         for (int i = 0; i < detectionMat.rows; i++) {
-            float trust =
-                detectionMat.at<float>(i, 2);  // Во втором столбце хранится уровень достоверности
+            float trust = detectionMat.at<float>(i, 2);
 
-            if (trust > confidenceThreshold) {  // Удовлетворение пороговому условию
-                // Сохраняем информацию о местоположении на изображении, где находится лицо
+            if (trust > confidenceThreshold) {  /// if above threshold
                 int xLeftBottom = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
                 int yLeftBottom = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
                 int xRightTop = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
                 int yRightTop = static_cast<int>(detectionMat.at<float>(i, 6) * frame.rows);
 
+                /// Draw rectange
                 rectangle(frame, cv::Point(xLeftBottom, yLeftBottom),
-                          cv::Point(xRightTop, yRightTop), cv::Scalar(0, 255, 0));  // Рисуем рамку
+                          cv::Point(xRightTop, yRightTop), cv::Scalar(0, 255, 0));
 
                 ss.str("");
                 ss << trust;
