@@ -28,11 +28,6 @@ std::string runtime::KEY_db_name;
 
 db::backends::available backend;
 
-const size_t inWidth = 300;  /// output image size
-const size_t inHeight = 300;
-const double inScaleFactor = 1.0;
-const cv::Scalar meanVal(104.0, 117.0, 123.0);
-
 int main(int argc, char* argv[]) {
     //* Args parsing. It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
@@ -86,73 +81,18 @@ int main(int argc, char* argv[]) {
                   << " ]\n";
 
     //* Engine test... *//
-    // database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
+    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cpu});
+    engine::dnnReturns ret;
+    cv::Mat frame;
 
     input::cameraDevice camera = cameraList.at(0);
-    float confidenceThreshold = 0.5;
-
-    /// Reads a network model stored in Caffe model in memory
-    cv::dnn::Net net = cv::dnn::readNetFromCaffe("./deploy.prototxt",
-                                                 "./res10_300x300_ssd_iter_140000_fp16.caffemodel");
-    net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-    net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
-    if (net.empty()) throw excepts::error("Unable to open DNN files.");
-
-    cv::Mat frame;
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
-    const double freq = cv::getTickFrequency() / 1000;
+    // database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
     while (true) {
         cap.read(frame);
 
-        // if (frame.channels() == 4) cvtColor(frame, frame, cv::COLOR_BGRA2BGR);
-
-        /// Pass the image to network
-        net.setInput(cv::dnn::blobFromImage(frame, inScaleFactor, cv::Size(inWidth, inHeight), meanVal, false, false), "data");
-
-        cv::Mat detection = net.forward("detection_out");
-        std::cout << cv::getTickFrequency() << std::endl;
-        std::vector<double> layersTimings;
-        
-        double frameTime = net.getPerfProfile(layersTimings) / freq;
-        
-        cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F,
-                             detection.ptr<float>());
-
-        /// Constructing stats msg
-        std::ostringstream ss;
-        ss << "FPS: " << 1000 / frameTime << " ; frameTime: " << frameTime << " ms";
-        putText(frame, ss.str(), cv::Point(20, 20), 0, 0.5, cv::Scalar(0, 0, 255));
-
-        for (int i = 0; i < detectionMat.rows; i++) {
-            float trust = detectionMat.at<float>(i, 2);
-
-            if (trust > confidenceThreshold) {  /// if above threshold
-                int xLeftBottom = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
-                int yLeftBottom = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
-                int xRightTop = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
-                int yRightTop = static_cast<int>(detectionMat.at<float>(i, 6) * frame.rows);
-
-                /// Draw rectange
-                rectangle(frame, cv::Point(xLeftBottom, yLeftBottom),
-                          cv::Point(xRightTop, yRightTop), cv::Scalar(0, 255, 0));
-
-                ss.str("");
-                ss << trust;
-                cv::String conf(ss.str());
-                cv::String label = "Face (trust: " + conf + ")";
-                int baseLine = 0;
-                cv::Size labelSize = getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
-
-                rectangle(frame,
-                          cv::Rect(cv::Point(xLeftBottom, yLeftBottom - labelSize.height),
-                                   cv::Size(labelSize.width, labelSize.height + baseLine)),
-                          cv::Scalar(255, 255, 255), cv::FILLED);
-
-                putText(frame, label, cv::Point(xLeftBottom, yLeftBottom), cv::FONT_HERSHEY_SIMPLEX,
-                        0.5, cv::Scalar(0, 0, 0));
-            }
-        }
+        dnn.processFrame(frame, true);
 
         cv::imshow(camera.name, frame);
         if (cv::waitKey(5) == 27) break;

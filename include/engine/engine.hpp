@@ -3,19 +3,44 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <string>
-#include <vector>
 
 namespace engine {
 
-enum dnnBackends { keep, cuda };
+struct dnnReturns {
+    cv::Mat positions;
+    float frametime;
+};
 
 class dnnLayer {
-   private:
    public:
-    dnnLayer(dnnBackends backend, std::string_view prototxtPath, std::string_view caffemodelPath);
-    dnnLayer(dnnBackends backend, cv::dnn::Net network);
+    enum properties { confidenceThreshold_p, dnnBackend_p, highlight_p };
+    enum dnnBackends { cpu, cuda/*, ...*/ };
+    struct config {
+        double confidenceThreshold  = 0.5;
+        dnnBackends backend         = cpu;
+        bool highlight              = true;
+        double scaleFactor          = 1.0;
+        cv::Size blobSize           = cv::Size(300, 300);
+    };
 
-    cv::Mat processFrame(cv::Mat& frame, const bool highlight);
+   private:
+    cv::dnn::Net net;
+    // properties
+    double confidenceThreshold;
+    bool highlight;
+    double scaleFactor;
+    cv::Size blobSize;
+
+   public:
+    dnnLayer(std::string prototxtPath, std::string caffemodelPath, config config);
+    dnnLayer(cv::dnn::Net network, config config);
+
+    template <typename T>
+    void setProperty(properties property, T value);
+
+    dnnReturns processFrame(cv::Mat& frame, const bool highlight);
 };
+
+// class logPhoto {};
 
 }  // namespace engine
