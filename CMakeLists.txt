@@ -13,7 +13,7 @@ set(CMAKE_AUTOMOC ON)
 # CMake will handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BE_BUILD_SAN "Build project with sanitizers (Debug only!)" OFF)

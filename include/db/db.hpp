@@ -33,37 +33,59 @@ credetials getDefaults(backends::available backend);
 
 namespace dataRows {
 
-namespace service {
-enum types { exceptionEvent = 0, connectEvent = 1, disconnectEvent = 2, broadcastEvent = 3 };
-struct row {
-    uint32_t id = 0; // will be generated automaticly
-    types type = exceptionEvent;
-    std::string data = {};
-};
-const std::string postgresString =
-    "id int GENERATED ALWAYS AS IDENTITY,"
-    "type smallint,"
-    "data varchar (255) ";
+// template <typename T> constexpr std::string genDataString(::db::backends::available backend, T dataStruct) { return {}; }
 
-const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
+namespace service {
+    enum types { exceptionEvent = 0, connectEvent = 1, disconnectEvent = 2, broadcastEvent = 3 };
+    
+    struct row {
+        uint32_t id = 0; // will be generated automaticly
+        types type = exceptionEvent;
+        std::string data = {};
+    };
+    const std::string postgresString =
+        "id int GENERATED ALWAYS AS IDENTITY,"
+        "type smallint,"
+        "data varchar (255) ";
+
+    const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
 }  // namespace service
 
 namespace journal {
-struct row {
-    uint32_t id = 0; // will be generated automaticly
-    std::string datetime;
-    std::string metadata;
-    void* image = nullptr;
-};
-const std::string postgresString =
-    "id int GENERATED ALWAYS AS IDENTITY,"
-    "datetime varchar (32),"
-    "metadata varchar (255),"
-    "image bytea DEFAULT NULL ";
+    struct row {
+        uint32_t id = 0; // will be generated automaticly
+        std::string datetime;
+        std::string metadata;
+        void* image = nullptr;
+    };
+    const std::string postgresString =
+        "id int GENERATED ALWAYS AS IDENTITY,"
+        "datetime varchar (32),"
+        "metadata varchar (255),"
+        "image bytea DEFAULT NULL ";
 
-const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
-
+    const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
 }  // namespace journal
+
+constexpr std::string genNamesVec(std::string source, bool ignoreFirst = true) {
+    std::string ret = "(";
+
+    bool waitForComma = false;
+    for (size_t i = 0; i < source.size(); i++) {
+        if (source.at(i) == ',') {
+            waitForComma = false;
+            if (!ignoreFirst) ret += ", ";
+            ignoreFirst = false;
+        } else if (source.at(i) == ' ') {
+            if (!waitForComma) waitForComma = true;
+        } else {
+            if (!waitForComma && !ignoreFirst) ret += source.at(i);
+        }
+    }
+    ret += ")";
+    
+    return ret;
+};
 
 }  // namespace dataRows
 

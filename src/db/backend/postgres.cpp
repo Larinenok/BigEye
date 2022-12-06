@@ -64,22 +64,25 @@ size_t impl::getRowsCount(std::string table) {
     return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM " + table));
 }
 
+
+using namespace dataRows;
+
 // Service table:
-void impl::serviceWrite(dataRows::service::row dataRow) {
+void impl::serviceWrite(service::row dataRow) {
     pqxx::work W{*C};
-    W.exec("INSERT INTO service (type, data) VALUES (" +
+    W.exec("INSERT INTO service " + genNamesVec(service::postgresString) + " VALUES (" +
            std::to_string(static_cast<int>(dataRow.type)) + ", '" + dataRow.data + "');");
     W.commit();
 }
-std::vector<dataRows::service::row> impl::serviceRead(size_t count) {
-    std::vector<dataRows::service::row> ret;
+std::vector<service::row> impl::serviceRead(size_t count) {
+    std::vector<service::row> ret;
     pqxx::work W{*C};
     auto response = W.exec_n(count, "SELECT * FROM service LIMIT " + std::to_string(count) + ";");
 
     for (auto i : response) {
-        dataRows::service::row row;
+        service::row row;
         row.id = std::stoul(i.at(0).c_str());
-        row.type = static_cast<dataRows::service::types>(i.at(1).get<int>().value());
+        row.type = static_cast<service::types>(i.at(1).get<int>().value());
         row.data = i.at(2).c_str();
         ret.push_back(row);
     }
@@ -87,21 +90,21 @@ std::vector<dataRows::service::row> impl::serviceRead(size_t count) {
 }
 
 // Journal table:
-void impl::journalWrite(dataRows::journal::row dataRow) {
+void impl::journalWrite(journal::row dataRow) {
     std::cout << "enter\n";
     pqxx::work W{*C};
-    W.exec("INSERT INTO journal (datetime, metadata) VALUES ('" + dataRow.datetime + "', '" +
-           dataRow.metadata + "');");
+    W.exec("INSERT INTO journal " + genNamesVec(journal::postgresString) + " VALUES ('" + dataRow.datetime + "', '" +
+           dataRow.metadata + "', NULL);");
     W.commit();
     std::cout << "out\n";
 }
-std::vector<dataRows::journal::row> impl::journalRead(size_t count) {
-    std::vector<dataRows::journal::row> ret;
+std::vector<journal::row> impl::journalRead(size_t count) {
+    std::vector<journal::row> ret;
     pqxx::work W{*C};
     auto response = W.exec_n(count, "SELECT * FROM journal LIMIT " + std::to_string(count) + ";");
 
     for (auto i : response) {
-        dataRows::journal::row row;
+        journal::row row;
         row.id = std::stoul(i.at(0).c_str());
         row.datetime = i.at(1).c_str();
         row.metadata = i.at(2).c_str();

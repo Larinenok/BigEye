@@ -81,14 +81,14 @@ int main(int argc, char* argv[]) {
                   << " ]\n";
 
     //* Engine test... *//
-    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cpu});
+    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cuda});
     engine::dnnReturns ret;
     cv::Mat frame;
 
     input::cameraDevice camera = cameraList.at(0);
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
-    // database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
+    database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
     while (true) {
         cap.read(frame);
 

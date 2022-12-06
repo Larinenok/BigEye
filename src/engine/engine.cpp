@@ -51,7 +51,7 @@ void dnnLayer::setProperty(properties property, T value) {
 
 dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight) {
     dnnReturns ret;
-    
+
     net.setInput(cv::dnn::blobFromImage(frame, this->scaleFactor, this->blobSize), "data");
 
     cv::Mat detection = net.forward("detection_out");
@@ -64,18 +64,14 @@ dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight) {
                             detection.ptr<float>());
 
     if (this->highlight) {
-        std::cout << "Testpoint #1\n";
         std::ostringstream ss;
         ss << "FPS: " << 1000 / ret.frametime << " ; frameTime: " << ret.frametime << " ms";
         putText(frame, ss.str(), cv::Point(20, 20), 0, 0.5, cv::Scalar(0, 0, 255));
-        std::cout << "Testpoint #2\n";
 
         for (int i = 0; i < detectionMat.rows; i++) {
-            std::cout << i << "\n";
             float trust = detectionMat.at<float>(i, 2);
 
             if (trust > confidenceThreshold) {  /// if above threshold
-                std::cout << "Testpoint #4\n";
 
                 int xLeftBottom = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
                 int yLeftBottom = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
@@ -100,7 +96,6 @@ dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight) {
 
                 putText(frame, label, cv::Point(xLeftBottom, yLeftBottom), cv::FONT_HERSHEY_SIMPLEX,
                         0.5, cv::Scalar(0, 0, 0));
-                std::cout << "Testpoint #5\n";
 
             }
         }
