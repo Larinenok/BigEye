@@ -1,15 +1,15 @@
 # BigEye
+The face recognition software.
+Uses Qt, OpenCV and PostgreSQL. Written in C++.
 
-Разработка кросплатформерного приложения с использованием Qt/C++ и OpenCV.:)
-
-## Участники
-| Имя | Роль |
+## Members
+| Name | Role |
 |---|---|
-| [Лаврентьев Олег](https://github.com/Larinenok) | Архитектор |
-| [Лунёв Всеволод](https://github.com/skattetskiy) | Тимлид |
-| [Мальцев Данил](https://github.com/Chopa1) | Программист |
-| [Толкачев Станислав](https://github.com/6yntar05) | Технический специалист |
-| [Харлампиди София](https://github.com/PolarExplor) | Дизайнер |
+| [Лаврентьев Олег](https://github.com/Larinenok) | Architect |
+| [Лунёв Всеволод](https://github.com/skattetskiy) | Team Leader |
+| [Мальцев Данил](https://github.com/Chopa1) | Developer |
+| [Толкачев Станислав](https://github.com/6yntar05) | Technical Specialist |
+| [Харлампиди София](https://github.com/PolarExplor) | Designer |
 
-## Лицензия
+## License
 GNU General Public License 3.0 ([GPL](LICENSE))
