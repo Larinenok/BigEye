@@ -1,7 +1,9 @@
 #include "db/backend/postgres.hpp"
 
+#include <cstddef>
 #include <db/db.hpp>
 #include <pqxx/pqxx>
+#include <pqxx/util.hxx>
 #include <string>
 
 #include "excepts.hpp"
@@ -92,23 +94,35 @@ std::vector<service::row> impl::serviceRead(size_t count) {
 // Journal table:
 void impl::journalWrite(journal::row dataRow) {
     std::cout << "enter\n";
+    this->C->prepare("journalWrite",
+        "INSERT INTO journal " + genNamesVec(journal::postgresString) + " VALUES ($1, $2, $3);");
+    pqxx::work W{*this->C};
+
+    auto src = dataRow.image;
+
+    auto helpme = pqxx::binary_cast(src);
+
+    W.exec_prepared("journalWrite", dataRow.datetime, dataRow.metadata, helpme);
+    /*
     pqxx::work W{*C};
     W.exec("INSERT INTO journal " + genNamesVec(journal::postgresString) + " VALUES ('" + dataRow.datetime + "', '" +
            dataRow.metadata + "', NULL);");
+    */
     W.commit();
     std::cout << "out\n";
 }
 std::vector<journal::row> impl::journalRead(size_t count) {
     std::vector<journal::row> ret;
     pqxx::work W{*C};
-    auto response = W.exec_n(count, "SELECT * FROM journal LIMIT " + std::to_string(count) + ";");
+    auto response = W.exec_n(count, "SELECT * FROM journal LIMIT " + W.esc(std::to_string(count)) + ";");
 
     for (auto i : response) {
         journal::row row;
         row.id = std::stoul(i.at(0).c_str());
         row.datetime = i.at(1).c_str();
         row.metadata = i.at(2).c_str();
-        row.image = nullptr;
+        //row.image = new std::string(i.at(3).c_str()); // Download image... later
+        //std::cout << *row.image << '\n';
         ret.push_back(row);
     }
 

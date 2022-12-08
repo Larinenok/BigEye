@@ -56,13 +56,13 @@ namespace journal {
         uint32_t id = 0; // will be generated automaticly
         std::string datetime;
         std::string metadata;
-        void* image = nullptr;
+        std::vector<unsigned char> image; // ((((((((((((((
     };
     const std::string postgresString =
         "id int GENERATED ALWAYS AS IDENTITY,"
         "datetime varchar (32),"
         "metadata varchar (255),"
-        "image bytea DEFAULT NULL ";
+        "image bytea DEFAULT NULL encoding 'ascii' ";
 
     const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
 }  // namespace journal

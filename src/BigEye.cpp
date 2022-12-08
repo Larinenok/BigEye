@@ -3,6 +3,7 @@
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <pqxx/util.hxx>
 #include <string>
 
 #include "db/db.hpp"
@@ -88,14 +89,22 @@ int main(int argc, char* argv[]) {
     input::cameraDevice camera = cameraList.at(0);
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
-    database.journalWrite({0, utils::getDatetime(), "TESTDATA"});
+    // For jpeg upload
+    std::vector<unsigned char> buff;
+    std::vector<int> param {cv::IMWRITE_JPEG_QUALITY, 60};
+
+    // Temporary loop
     while (true) {
         cap.read(frame);
-
         dnn.processFrame(frame, true);
+
+        cv::imencode(".jpg", frame, buff, param);
+        
+        database.journalWrite({0, utils::getDatetime(), "TESTDATA", buff}); // TEMPORARY
 
         cv::imshow(camera.name, frame);
         if (cv::waitKey(5) == 27) break;
+        //break; // TEMPORARY
     }
 
     // Disconnecting
