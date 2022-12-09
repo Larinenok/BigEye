@@ -1,3 +1,7 @@
+#include "ui/mainwindow.h"
+
+#include <QApplication>
+
 #include <cstdlib>
 #include <opencv2/core.hpp>
 #include <opencv2/dnn/dnn.hpp>
@@ -39,6 +43,13 @@ int main(int argc, char* argv[]) {
     ui::warn("Msg3");
     ui::msg("Msg4");
 
+    /*
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+    */
+
     //* Database connect *//
     /// Arg string to backend
     backend = db::backends::none;
@@ -79,7 +90,7 @@ int main(int argc, char* argv[]) {
     auto journalDump = database.journalRead(database.getRowsCount("journal"));
     for (auto& i : journalDump)
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
-                  << " ]\n";
+                  << i.image.size() << " ]\n";
 
     //* Engine test... *//
     auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cuda});

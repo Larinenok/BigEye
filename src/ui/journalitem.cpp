@@ -1,4 +1,4 @@
-#include "journalitem.h"
+#include "ui/journalitem.h"
 #include "ui_journalitem.h"
 
 JournalItem::JournalItem(std::string time, std::string camera, std::string status, std::string id, QWidget *parent) :

@@ -75,6 +75,8 @@ find_package    (PostgreSQL REQUIRED)
 
 ### PROJECT FILES AND LIBRARIES ###
 file                (GLOB_RECURSE SRCFILES "./src/*.cpp")
+file                (GLOB_RECURSE SRCFILES ${SRCFILES} "./src/ui/*.ui")
+file                (GLOB_RECURSE SRCFILES ${SRCFILES} "./include/ui/*.h")
 include_directories (AFTER SYSTEM ./include)
 
 if (UNIX AND BE_USE_COLORS)

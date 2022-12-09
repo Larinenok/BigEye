@@ -99,15 +99,9 @@ void impl::journalWrite(journal::row dataRow) {
     pqxx::work W{*this->C};
 
     auto src = dataRow.image;
-
     auto helpme = pqxx::binary_cast(src);
-
     W.exec_prepared("journalWrite", dataRow.datetime, dataRow.metadata, helpme);
-    /*
-    pqxx::work W{*C};
-    W.exec("INSERT INTO journal " + genNamesVec(journal::postgresString) + " VALUES ('" + dataRow.datetime + "', '" +
-           dataRow.metadata + "', NULL);");
-    */
+
     W.commit();
     std::cout << "out\n";
 }
@@ -121,6 +115,7 @@ std::vector<journal::row> impl::journalRead(size_t count) {
         row.id = std::stoul(i.at(0).c_str());
         row.datetime = i.at(1).c_str();
         row.metadata = i.at(2).c_str();
+        std::cout << i.at(2).c_str() << '\n';
         //row.image = new std::string(i.at(3).c_str()); // Download image... later
         //std::cout << *row.image << '\n';
         ret.push_back(row);
