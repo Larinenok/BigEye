@@ -1,14 +1,18 @@
+#include <qobject.h>
 #include "ui/mainwindow.h"
 
 #include <QApplication>
+#include <QObject>
 
 #include <cstdlib>
+#include <exception>
 #include <opencv2/core.hpp>
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <pqxx/util.hxx>
 #include <string>
+#include <thread>
 
 #include "db/db.hpp"
 #include "engine/engine.hpp"
@@ -25,6 +29,7 @@
 bool runtime::FLAG_headless = false;
 bool runtime::FLAG_dryRun = false;
 bool runtime::FLAG_useCuda = false;
+bool runtime::FLAG_noScan = false;
 
 std::string runtime::KEY_db_backend;
 std::string runtime::KEY_db_address;
@@ -34,7 +39,8 @@ std::string runtime::KEY_db_name;
 
 db::backends::available backend;
 
-int main(int argc, char* argv[]) {
+
+int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
 
@@ -44,15 +50,16 @@ int main(int argc, char* argv[]) {
     ui::warn("Msg3");
     ui::msg("Msg4");
 
-    /*
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
-    */
+    //------ Cringe GUI async init (Ya, we know about qt method) ------//
+    if (!runtime::FLAG_headless) {
+        QApplication a(argc, argv);
+        MainWindow w;
+        w.show();
+        a.exec();
+    }
 
     //------ Database connect ------//
-    /// Arg string to backend
+    /// Arg string to backend1
     backend = db::backends::none;
     if (runtime::KEY_db_backend == "postgres") backend = db::backends::postgres;
     if (runtime::KEY_db_backend == "sqlite") backend = db::backends::sqlite;
@@ -76,7 +83,10 @@ int main(int argc, char* argv[]) {
     database.setup();
 
     //------ Looking for cameras ------//
-    auto cameraList = input::getCameraList();
+    std::vector<input::cameraDevice> cameraList = {input::cameraDevice{}};
+    if (!runtime::FLAG_noScan)
+        cameraList = input::getCameraList();
+
     database.serviceWrite({0, db::dataRows::service::types::connectEvent,
                            utils::getDatetime() + ";" + utils::getHostname() + ";" +
                                std::to_string(cameraList.size())});

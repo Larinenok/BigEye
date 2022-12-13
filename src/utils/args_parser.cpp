@@ -14,6 +14,7 @@ void parseArgs(const int argc, char *argv[]) {
         ("dry,d", "Dry run")
         ("headless,l", "No GUI mode")
         ("cuda,c", "Use NoVideo CUDA")
+        ("noscan,n", "Do not scan cameras")
         ("db-backend,b", "<POSTGRES/SQLITE/NONE>", true)
         ("db-address,a", "<<IP:PORT> or <PATH_TO_SOCKFILE>>", true)
         ("db-user,u", "<USERNAME>", true)
@@ -36,6 +37,9 @@ void parseArgs(const int argc, char *argv[]) {
     }
     if (args.count("cuda")) {
         runtime::FLAG_useCuda = true;
+    }
+    if (args.count("noscan")) {
+        runtime::FLAG_noScan = true;
     }
     if (args.count("db-backend")) {
         runtime::KEY_db_backend = args.at("db-backend").get_value();
