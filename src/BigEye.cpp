@@ -24,6 +24,7 @@
 // Runtime defaults
 bool runtime::FLAG_headless = false;
 bool runtime::FLAG_dryRun = false;
+bool runtime::FLAG_useCuda = false;
 
 std::string runtime::KEY_db_backend;
 std::string runtime::KEY_db_address;
@@ -50,7 +51,7 @@ int main(int argc, char* argv[]) {
     return a.exec();
     */
 
-    //* Database connect *//
+    //------ Database connect ------//
     /// Arg string to backend
     backend = db::backends::none;
     if (runtime::KEY_db_backend == "postgres") backend = db::backends::postgres;
@@ -74,13 +75,13 @@ int main(int argc, char* argv[]) {
     }
     database.setup();
 
-    //* Looking for cameras *//
+    //------ Looking for cameras ------//
     auto cameraList = input::getCameraList();
     database.serviceWrite({0, db::dataRows::service::types::connectEvent,
                            utils::getDatetime() + ";" + utils::getHostname() + ";" +
                                std::to_string(cameraList.size())});
 
-    //* Database lookup *//
+    //------ Database lookup ------//
     std::cout << "\t[Service table]\n";
     auto serviceDump = database.serviceRead(database.getRowsCount("service"));
     for (auto& i : serviceDump)
@@ -92,8 +93,13 @@ int main(int argc, char* argv[]) {
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
                   << i.image.size() << " ]\n";
 
-    //* Engine test... *//
-    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cpu});
+    //------ Engine test... ------//
+    auto dnn = engine::dnnLayer(
+        "./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel",
+        {0.5, runtime::FLAG_useCuda ?
+            engine::dnnLayer::dnnBackends::cuda :
+            engine::dnnLayer::dnnBackends::cpu
+        });
     engine::dnnReturns ret;
     cv::Mat frame;
 
@@ -115,7 +121,6 @@ int main(int argc, char* argv[]) {
 
         cv::imshow(camera.name, frame);
         if (cv::waitKey(5) == 27) break;
-        //break; // TEMPORARY
     }
 
     // Disconnecting

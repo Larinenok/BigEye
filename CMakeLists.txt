@@ -137,9 +137,9 @@ target_include_directories  (${PROJECT_NAME} PRIVATE ./include)
 ### POST-TRANSACTION TASKS ###
 message (">> Downloading latest OpenCV face-detection files...")
 
-set     (BE_OPENCV_CAFFEMODEL_URL "https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel")
+set     (BE_OPENCV_HCASCADE_FACE_URL "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml")
 if (NOT EXISTS "./haarcascade_frontalface_default.xml")
-    file    (DOWNLOAD ${BE_OPENCV_HCASCADE_URL} "./haarcascade_frontalface_default.xml")
+    file    (DOWNLOAD ${BE_OPENCV_HCASCADE_FACE_URL} "./haarcascade_frontalface_default.xml")
 endif ()
 
 set     (BE_OPENCV_DEPLOYPROTO_URL "https://raw.githubusercontent.com/opencv/opencv/master/samples/dnn/face_detector/deploy.prototxt")
@@ -147,7 +147,7 @@ if (NOT EXISTS "./deploy.prototxt")
 file    (DOWNLOAD ${BE_OPENCV_DEPLOYPROTO_URL} "./deploy.prototxt")
 endif ()
 
-set     (BE_OPENCV_HCASCADE_URL "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml")
+set     (BE_OPENCV_CAFFEMODEL_URL "https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel")
 if (NOT EXISTS "./res10_300x300_ssd_iter_140000_fp16.caffemodel")
 file    (DOWNLOAD ${BE_OPENCV_CAFFEMODEL_URL} "./res10_300x300_ssd_iter_140000_fp16.caffemodel")
 endif ()

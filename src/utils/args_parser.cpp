@@ -12,7 +12,8 @@ void parseArgs(const int argc, char *argv[]) {
     desc.add_options()
         ("help,h", "Help page")
         ("dry,d", "Dry run")
-        ("headless,l", "Headless")
+        ("headless,l", "No GUI mode")
+        ("cuda,c", "Use NoVideo CUDA")
         ("db-backend,b", "<POSTGRES/SQLITE/NONE>", true)
         ("db-address,a", "<<IP:PORT> or <PATH_TO_SOCKFILE>>", true)
         ("db-user,u", "<USERNAME>", true)
@@ -32,6 +33,9 @@ void parseArgs(const int argc, char *argv[]) {
     }
     if (args.count("headless")) {
         runtime::FLAG_headless = true;
+    }
+    if (args.count("cuda")) {
+        runtime::FLAG_useCuda = true;
     }
     if (args.count("db-backend")) {
         runtime::KEY_db_backend = args.at("db-backend").get_value();

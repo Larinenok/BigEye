@@ -7,6 +7,7 @@ namespace runtime {
 /* RUNTIME FLAGS*/
 extern bool FLAG_headless;
 extern bool FLAG_dryRun;
+extern bool FLAG_useCuda;
 
 /* RUNTIME KEYS */
 extern std::string KEY_db_backend;
