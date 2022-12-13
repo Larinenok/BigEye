@@ -51,7 +51,7 @@ void impl::setup() {
                         "SELECT EXISTS ("
                         "SELECT FROM pg_tables "
                         "WHERE schemaname = 'public' AND tablename = '" +
-                        i.first + "')")
+                        W.esc(i.first) + "')")
                        .at(0);
         if (ret == 'f') {
             // Table does ot exist; Create
@@ -59,21 +59,24 @@ void impl::setup() {
             W.commit();
         }
     }
+
+    this->C->prepare("serviceWrite",
+        "INSERT INTO service " + dataRows::genNamesVec(dataRows::service::postgresString) + " VALUES ($1, $2);");
+    this->C->prepare("journalWrite",
+        "INSERT INTO journal " + dataRows::genNamesVec(dataRows::journal::postgresString) + " VALUES ($1, $2, $3);");
 }
 
 size_t impl::getRowsCount(std::string table) {
     pqxx::work W{*C};
-    return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM " + table));
+    return static_cast<size_t>(W.query_value<size_t>("SELECT COUNT(*) FROM " + W.esc(table)));
 }
-
 
 using namespace dataRows;
 
 // Service table:
 void impl::serviceWrite(service::row dataRow) {
     pqxx::work W{*C};
-    W.exec("INSERT INTO service " + genNamesVec(service::postgresString) + " VALUES (" +
-           std::to_string(static_cast<int>(dataRow.type)) + ", '" + dataRow.data + "');");
+    W.exec_prepared("serviceWrite", std::to_string(static_cast<int>(dataRow.type)), dataRow.data);
     W.commit();
 }
 std::vector<service::row> impl::serviceRead(size_t count) {
@@ -93,17 +96,9 @@ std::vector<service::row> impl::serviceRead(size_t count) {
 
 // Journal table:
 void impl::journalWrite(journal::row dataRow) {
-    std::cout << "enter\n";
-    this->C->prepare("journalWrite",
-        "INSERT INTO journal " + genNamesVec(journal::postgresString) + " VALUES ($1, $2, $3);");
     pqxx::work W{*this->C};
-
-    auto src = dataRow.image;
-    auto helpme = pqxx::binary_cast(src);
-    W.exec_prepared("journalWrite", dataRow.datetime, dataRow.metadata, helpme);
-
+    W.exec_prepared("journalWrite", dataRow.datetime, dataRow.metadata, pqxx::binary_cast(dataRow.image));
     W.commit();
-    std::cout << "out\n";
 }
 std::vector<journal::row> impl::journalRead(size_t count) {
     std::vector<journal::row> ret;
@@ -115,7 +110,9 @@ std::vector<journal::row> impl::journalRead(size_t count) {
         row.id = std::stoul(i.at(0).c_str());
         row.datetime = i.at(1).c_str();
         row.metadata = i.at(2).c_str();
-        std::cout << i.at(2).c_str() << '\n';
+        auto x = i.at(3).get<std::basic_string<std::byte>>();
+        
+        //std::cout << i.at(3).c_str() << '\n';
         //row.image = new std::string(i.at(3).c_str()); // Download image... later
         //std::cout << *row.image << '\n';
         ret.push_back(row);

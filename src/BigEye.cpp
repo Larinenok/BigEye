@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
                   << i.image.size() << " ]\n";
 
     //* Engine test... *//
-    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cuda});
+    auto dnn = engine::dnnLayer("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel", {0.5, engine::dnnLayer::dnnBackends::cpu});
     engine::dnnReturns ret;
     cv::Mat frame;
 

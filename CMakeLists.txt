@@ -119,7 +119,7 @@ else ()
     message (FATAL_ERROR "PostgreSQL libraries not found!")
 endif()
 
-### PQXX
+
 find_library (PQXX_LIB pqxx)
 if (PQXX_LIB)
     target_link_libraries   (${PROJECT_NAME} PRIVATE ${PQXX_LIB})
