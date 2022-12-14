@@ -101,7 +101,10 @@ class impl {
     virtual std::vector<dataRows::service::row> serviceRead(size_t count) { return {}; };
 
     // Journal table
-    virtual void journalWrite(dataRows::journal::row){};
+    virtual void journalWrite(dataRows::journal::row i) {
+        std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
+                  << i.image.size() << " ]\n";
+    };
     virtual std::vector<dataRows::journal::row> journalRead(size_t count) { return {}; };
 
     virtual size_t getRowsCount(std::string table) { return {}; };

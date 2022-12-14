@@ -158,7 +158,7 @@ dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight, std::vec
 
     cv::Mat detection = net.forward("detection_out");
     std::vector<double> layersTimings;
-    int count = 0;
+    // int count = 0;
 
     const double freq = cv::getTickFrequency() / 1000;
     ret.frametime = net.getPerfProfile(layersTimings) / freq;
@@ -181,17 +181,13 @@ dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight, std::vec
                 int xRightTop = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
                 int yRightTop = static_cast<int>(detectionMat.at<float>(i, 6) * frame.rows);
 
-                if (count == 5)
-                {
+                // if (count == 5) {
                     cv::Mat crop = frame(cv::Range(yLeftBottom, yRightTop), cv::Range(xLeftBottom, xRightTop));
                     resize(crop, crop, cv::Size(250, 300), cv::INTER_LINEAR);
                     Points = engine ::finding_points(crop, Points, database);
-                    count = 0;
-                }
-                else
-                {
-                    count++;
-                }
+                //    count = 0;
+                //} else
+                //    count++;
 
                 /// Draw rectange
                 rectangle(frame, cv::Point(xLeftBottom, yLeftBottom),

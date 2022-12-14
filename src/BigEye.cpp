@@ -67,7 +67,6 @@ int main(int argc, char** argv) {
     MainWindow w;
     w.show();
     QImage myImage;
-    QLabel myLabel;
 
     //------ Database connect ------//
     /// Arg string to backend1
@@ -137,7 +136,6 @@ int main(int argc, char** argv) {
     // For jpeg upload
     std::vector <double> Points;
 
-    myLabel.show();
     // Temporary loop
     while (true) {
         cap.read(frame);
