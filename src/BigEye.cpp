@@ -56,7 +56,7 @@ inline void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID
         return;
     }
     counter = 1;
-    
+
     size_t newCount = database.getRowsCount("journal");
     if (newCount == journalCount) return;
     // If new exists:
@@ -71,7 +71,6 @@ inline void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID
         }
     }
 }
-
 int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
@@ -88,6 +87,7 @@ int main(int argc, char** argv) {
         MainWindow w;
         w.show();
         QImage myImage;
+        w.easterSecret(utils::getHostname());
     //}
 
     //------ Database connect ------//

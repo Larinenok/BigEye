@@ -32,6 +32,11 @@ void MainWindow::updateFrame(QImage qimage)
     ui->video->setPixmap(QPixmap::fromImage(qimage));
 }
 
+void MainWindow::easterSecret(std::string hostname) {
+    if (hostname == "DESKTOP-H0ID0JL")
+        ui->tabWidget->setTabText(1, "⬛ Планшеты");
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
     std::cout << "close" << std::endl;

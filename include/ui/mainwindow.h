@@ -27,6 +27,8 @@ public:
     void addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image);
     void updateFrame(QImage qimage);
 
+    void easterSecret(std::string hostname);
+
 private:
     Ui::MainWindow *ui;
 
