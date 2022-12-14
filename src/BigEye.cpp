@@ -50,8 +50,14 @@ QImage Mat2QImage(cv::Mat const& src) {
     return dest;
 }
 
-void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t journalCount) {
-    size_t newCount = database.getRowsCount("service");
+inline void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t& journalCount, size_t& counter) {
+    if (counter <= 30) {
+        counter++;
+        return;
+    }
+    counter = 1;
+    
+    size_t newCount = database.getRowsCount("journal");
     if (newCount == journalCount) return;
     // If new exists:
     journalCount = newCount;
@@ -118,8 +124,8 @@ int main(int argc, char** argv) {
                                std::to_string(cameraList.size())});
 
     //------ Database lookup ------//
-    uint32_t serviceLastID;
-    uint32_t journalLastID;
+    uint32_t serviceLastID = 0;
+    uint32_t journalLastID = 0;
 
     std::cout << "\t[Service table]\n";
     size_t serviceCount = database.getRowsCount("service");
@@ -162,7 +168,7 @@ int main(int argc, char** argv) {
 
     // For jpeg upload
     std::vector <double> Points;
-    size_t counter = 0;
+    size_t counter = 1;
 
     // Temporary loop
     while (true) {
@@ -173,7 +179,7 @@ int main(int argc, char** argv) {
         // Draw the image on GUI
         resize(frame, frame, cv::Size(newWidth, newHeight), cv::INTER_LINEAR);
         w.updateFrame(Mat2QImage(frame));
-        pullUpdates(database, w, journalLastID, journalCount);
+        pullUpdates(database, w, journalLastID, journalCount, counter);
 
         // Update events
         a.processEvents();
