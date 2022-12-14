@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
         database.journalWrite({0, utils::getDatetime(), "TESTDATA", buff}); // TEMPORARY
 
         // Draw the image on GUI
-        myImage = Mat2QImage(frame);
-        myLabel.setPixmap(QPixmap::fromImage(myImage));
+        w.updateFrame(Mat2QImage(frame));
+//         myLabel.setPixmap(QPixmap::fromImage(myImage));
 
         // HOW TO GET RID THIS
         cv::imshow(camera.name, frame);

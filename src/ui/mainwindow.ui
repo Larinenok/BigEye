@@ -39,7 +39,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="video">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -263,8 +263,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>403</width>
-             <height>439</height>
+             <width>87</width>
+             <height>30</height>
             </rect>
            </property>
           </widget>

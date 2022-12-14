@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QVBoxLayout>
+#include <QImage>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,6 +23,7 @@ public:
 
     void addNewServiceItem(std::string id, std::string type, std::string data);
     void addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image);
+    void updateFrame(QImage qimage);
 
 private:
     Ui::MainWindow *ui;

@@ -4,12 +4,12 @@
 #include <QPixmap>
 
 ItemWindow::ItemWindow(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> *image, QWidget *parent) :
+    QWidget(parent),
     time(time),
     camera(camera),
     status(status),
     id(id),
     image(image),
-    QWidget(parent),
     ui(new Ui::ItemWindow)
 {
     ui->setupUi(this);
@@ -21,9 +21,9 @@ ItemWindow::ItemWindow(std::string time, std::string camera, std::string status,
 
     QLabel *rootImage = new QLabel(this);
     ui->image->addWidget(rootImage);
-    QPixmap imageMap("../image.jpg");
-    // imageMap.loadFromData(this->image->data(), this->image->size());
-    rootImage->setPixmap(imageMap);
+    QPixmap *imageMap = new QPixmap();
+    imageMap->loadFromData(this->image->data(), this->image->size());
+    rootImage->setPixmap(*imageMap);
 }
 
 ItemWindow::~ItemWindow()

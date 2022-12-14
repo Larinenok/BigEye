@@ -3,12 +3,12 @@
 #include "ui/itemwindow.h"
 
 JournalItem::JournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> *image, QWidget *parent) :
+    QWidget(parent),
     time(time),
     camera(camera),
     status(status),
     id(id),
     image(image),
-    QWidget(parent),
     ui(new Ui::JournalItem)
 {
     ui->setupUi(this);

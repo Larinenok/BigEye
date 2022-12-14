@@ -28,3 +28,8 @@ void MainWindow::addNewJournalItem(std::string time, std::string camera, std::st
     this->journalList.push_back(new JournalItem(time, camera, status, id, &image));
     this->journalLayout.addWidget(this->journalList.back());
 }
+
+void MainWindow::updateFrame(QImage qimage)
+{
+    ui->video->setPixmap(QPixmap::fromImage(qimage));
+}
