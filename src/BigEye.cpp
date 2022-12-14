@@ -50,6 +50,22 @@ QImage Mat2QImage(cv::Mat const& src) {
     return dest;
 }
 
+void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t journalCount) {
+    size_t newCount = database.getRowsCount("service");
+    if (newCount == journalCount) return;
+    // If new exists:
+    journalCount = newCount;
+    auto journalDump = database.journalRead(newCount);
+    for (auto& i : journalDump) {
+        if (i.id > journalLastID) {
+            std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
+                    << i.image.size() << " ]\n";
+            w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
+            journalLastID = i.id;
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
@@ -61,12 +77,12 @@ int main(int argc, char** argv) {
     ui::msg("Msg4");
 
     //------ Cringe GUI ------//
-    // if (!runtime::FLAG_headless) {}
-
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    QImage myImage;
+    //if (!runtime::FLAG_headless) {
+        QApplication a(argc, argv);
+        MainWindow w;
+        w.show();
+        QImage myImage;
+    //}
 
     //------ Database connect ------//
     /// Arg string to backend1
@@ -102,22 +118,30 @@ int main(int argc, char** argv) {
                                std::to_string(cameraList.size())});
 
     //------ Database lookup ------//
+    uint32_t serviceLastID;
+    uint32_t journalLastID;
+
     std::cout << "\t[Service table]\n";
-    auto serviceDump = database.serviceRead(database.getRowsCount("service"));
+    size_t serviceCount = database.getRowsCount("service");
+    auto serviceDump = database.serviceRead(serviceCount);
     for (auto& i : serviceDump){
         std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
         w.addNewServiceItem(
             std::to_string(i.id),
             "Later...",
             i.data);
+        
+        if (serviceLastID < i.id) serviceLastID = i.id;
     }
 
     std::cout << "\n\t[Journal table]\n";
-    auto journalDump = database.journalRead(database.getRowsCount("journal"));
+    size_t journalCount = database.getRowsCount("journal");
+    auto journalDump = database.journalRead(journalCount);
     for (auto& i : journalDump) {
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
                   << i.image.size() << " ]\n";
         w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
+        if (journalLastID < i.id) journalLastID = i.id;
     }
 
     //------ Engine test... ------//
@@ -131,10 +155,14 @@ int main(int argc, char** argv) {
     cv::Mat frame;
 
     input::cameraDevice camera = cameraList.at(0);
+    int scaller = camera.mode.y / 500;
+    int newWidth = camera.mode.y / scaller;
+    int newHeight = camera.mode.x / scaller;
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
     // For jpeg upload
     std::vector <double> Points;
+    size_t counter = 0;
 
     // Temporary loop
     while (true) {
@@ -143,15 +171,12 @@ int main(int argc, char** argv) {
         dnn.processFrame(frame, true, Points, database);
 
         // Draw the image on GUI
-        int scaller = frame.size().width / 500;
-        int newWidth = frame.size().width / scaller;
-        int newHeight = frame.size().height / scaller;
         resize(frame, frame, cv::Size(newWidth, newHeight), cv::INTER_LINEAR);
         w.updateFrame(Mat2QImage(frame));
+        pullUpdates(database, w, journalLastID, journalCount);
 
         // Update events
         a.processEvents();
-
         if (w.isClosed) break;
     }
 
