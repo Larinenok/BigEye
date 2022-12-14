@@ -1,3 +1,4 @@
+#include <qlabel.h>
 #include <qobject.h>
 #include "ui/mainwindow.h"
 
@@ -39,6 +40,15 @@ std::string runtime::KEY_db_name;
 
 db::backends::available backend;
 
+QImage Mat2QImage(cv::Mat const& src)
+{
+    cv::Mat temp; 
+    cvtColor(src, temp, cv::COLOR_BGR2RGB); 
+    QImage dest((const uchar *)temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+    dest.bits(); 
+    // of QImage::QImage ( const uchar * data, int width, int height, Format format )
+    return dest;
+}
 
 int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
@@ -50,13 +60,15 @@ int main(int argc, char** argv) {
     ui::warn("Msg3");
     ui::msg("Msg4");
 
-    //------ Cringe GUI async init (Ya, we know about qt method) ------//
-    if (!runtime::FLAG_headless) {
-        QApplication a(argc, argv);
-        MainWindow w;
-        w.show();
-        a.exec();
-    }
+    //------ Cringe GUI ------//
+    // if (!runtime::FLAG_headless) {}
+
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    QImage myImage;
+    QLabel myLabel;
+    
 
     //------ Database connect ------//
     /// Arg string to backend1
@@ -120,15 +132,20 @@ int main(int argc, char** argv) {
     std::vector<unsigned char> buff;
     std::vector<int> param {cv::IMWRITE_JPEG_QUALITY, 60};
 
+    myLabel.show();
+
     // Temporary loop
     while (true) {
         cap.read(frame);
+        
         dnn.processFrame(frame, true);
-
+        
         cv::imencode(".jpg", frame, buff, param);
         
         database.journalWrite({0, utils::getDatetime(), "TESTDATA", buff}); // TEMPORARY
 
+        myImage = Mat2QImage(frame);
+        myLabel.setPixmap(QPixmap::fromImage(myImage));
         cv::imshow(camera.name, frame);
         if (cv::waitKey(5) == 27) break;
     }
@@ -138,5 +155,5 @@ int main(int argc, char** argv) {
                            utils::getHostname() + ";" + utils::getDatetime()});
     database.disconnect();
 
-    return 0;
+    return a.exec();
 }

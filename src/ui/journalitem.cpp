@@ -1,6 +1,6 @@
-#include "journalitem.h"
+#include "ui/journalitem.h"
 #include "ui_journalitem.h"
-#include "itemwindow.h"
+#include "ui/itemwindow.h"
 
 JournalItem::JournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> *image, QWidget *parent) :
     time(time),

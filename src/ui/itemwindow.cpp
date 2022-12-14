@@ -1,4 +1,4 @@
-#include "itemwindow.h"
+#include "ui/itemwindow.h"
 #include "ui_itemwindow.h"
 #include <QLabel>
 #include <QPixmap>
