@@ -135,25 +135,17 @@ int main(int argc, char** argv) {
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
     // For jpeg upload
-    std::vector<unsigned char> buff;
-    std::vector<int> param {cv::IMWRITE_JPEG_QUALITY, 60};
+    std::vector <double> Points;
 
     myLabel.show();
     // Temporary loop
     while (true) {
         cap.read(frame);
         // DNN
-        dnn.processFrame(frame, true);
-
-        // Encode the frame to JPEG
-        cv::imencode(".jpg", frame, buff, param);
-
-        // General algo
-        database.journalWrite({0, utils::getDatetime(), "TESTDATA", buff}); // TEMPORARY
+        dnn.processFrame(frame, true, Points, database);
 
         // Draw the image on GUI
         w.updateFrame(Mat2QImage(frame));
-//         myLabel.setPixmap(QPixmap::fromImage(myImage));
 
         // HOW TO GET RID THIS
         cv::imshow(camera.name, frame);

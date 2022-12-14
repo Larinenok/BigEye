@@ -2,6 +2,7 @@
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "db/db.hpp"
 #include <string>
 
 namespace engine {
@@ -38,7 +39,7 @@ class dnnLayer {
     template <typename T>
     void setProperty(properties property, T value);
 
-    dnnReturns processFrame(cv::Mat& frame, const bool highlight);
+    dnnReturns processFrame(cv::Mat& frame, const bool highlight, std::vector <double>& Points, db::db& database);
 };
 
 // class logPhoto {};
