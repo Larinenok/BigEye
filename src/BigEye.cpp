@@ -107,7 +107,10 @@ int main(int argc, char** argv) {
     auto serviceDump = database.serviceRead(database.getRowsCount("service"));
     for (auto& i : serviceDump){
         std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
-        w.addNewServiceItem(std::to_string(i.id), i.type, i.data);
+        w.addNewServiceItem(
+            std::to_string(i.id),
+            "Later...",
+            i.data);
     }
 
     std::cout << "\n\t[Journal table]\n";
