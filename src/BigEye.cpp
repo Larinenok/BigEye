@@ -145,10 +145,8 @@ int main(int argc, char** argv) {
         // Draw the image on GUI
         w.updateFrame(Mat2QImage(frame));
 
-        // HOW TO GET RID THIS
-        cv::imshow(camera.name, frame);
-        if (cv::waitKey(5) == 27) break;
-        // !
+        // Update events
+        a.processEvents();
     }
 
     // Disconnecting

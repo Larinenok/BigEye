@@ -186,7 +186,7 @@ dnnReturns dnnLayer::processFrame(cv::Mat& frame, const bool highlight, std::vec
                     resize(crop, crop, cv::Size(250, 300), cv::INTER_LINEAR);
                     Points = engine ::finding_points(crop, Points, database);
                 //    count = 0;
-                //} else
+                // } else
                 //    count++;
 
                 /// Draw rectange
