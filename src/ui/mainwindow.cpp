@@ -9,9 +9,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     this->journalRoot.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     ui->journalScroll->setWidget(&this->journalRoot);
-
-    for (int i = 0; i < 10; i++)
-        this->addNewJournalItem("00:00", "camera 1", "old", std::to_string(i * 111), *new std::vector<unsigned char>(0));
 }
 
 MainWindow::~MainWindow()
