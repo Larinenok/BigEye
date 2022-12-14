@@ -62,7 +62,7 @@ namespace journal {
         "id int GENERATED ALWAYS AS IDENTITY,"
         "datetime varchar (32),"
         "metadata varchar (255),"
-        "image bytea DEFAULT NULL encoding 'ascii' ";
+        "image bytea DEFAULT NULL";
 
     const std::string sqliteString = "; DROP TABLE *;";  // We do a little trolling...
 }  // namespace journal

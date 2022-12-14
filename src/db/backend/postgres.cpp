@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <db/db.hpp>
 #include <pqxx/pqxx>
-#include <pqxx/util.hxx>
+#include <pqxx/util>
 #include <string>
 
 #include "excepts.hpp"

@@ -20,6 +20,7 @@ public:
     QVBoxLayout journalLayout{&journalRoot};
     std::vector<QWidget*> journalList;
 
+    void addNewServiceItem(std::string id, std::string type, std::string data);
     void addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image);
 
 private:

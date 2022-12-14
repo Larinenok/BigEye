@@ -1,8 +1,8 @@
-#include <qlabel.h>
-#include <qobject.h>
 #include "ui/mainwindow.h"
 
 #include <QApplication>
+#include <QObject>
+#include <QLabel>
 #include <QObject>
 
 #include <cstdlib>
@@ -11,9 +11,10 @@
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <pqxx/util.hxx>
+#include <pqxx/util>
 #include <string>
 #include <thread>
+#include <chrono>
 
 #include "db/db.hpp"
 #include "engine/engine.hpp"
@@ -40,8 +41,7 @@ std::string runtime::KEY_db_name;
 
 db::backends::available backend;
 
-QImage Mat2QImage(cv::Mat const& src)
-{
+QImage Mat2QImage(cv::Mat const& src) {
     cv::Mat temp; 
     cvtColor(src, temp, cv::COLOR_BGR2RGB); 
     QImage dest((const uchar *)temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
@@ -68,7 +68,6 @@ int main(int argc, char** argv) {
     w.show();
     QImage myImage;
     QLabel myLabel;
-    
 
     //------ Database connect ------//
     /// Arg string to backend1
@@ -106,14 +105,18 @@ int main(int argc, char** argv) {
     //------ Database lookup ------//
     std::cout << "\t[Service table]\n";
     auto serviceDump = database.serviceRead(database.getRowsCount("service"));
-    for (auto& i : serviceDump)
+    for (auto& i : serviceDump){
         std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
+        w.addNewServiceItem(std::to_string(i.id), i.type, i.data);
+    }
 
     std::cout << "\n\t[Journal table]\n";
     auto journalDump = database.journalRead(database.getRowsCount("journal"));
-    for (auto& i : journalDump)
+    for (auto& i : journalDump) {
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
                   << i.image.size() << " ]\n";
+        w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
+    }
 
     //------ Engine test... ------//
     auto dnn = engine::dnnLayer(
@@ -133,21 +136,26 @@ int main(int argc, char** argv) {
     std::vector<int> param {cv::IMWRITE_JPEG_QUALITY, 60};
 
     myLabel.show();
-
     // Temporary loop
     while (true) {
         cap.read(frame);
-        
+        // DNN
         dnn.processFrame(frame, true);
-        
+
+        // Encode the frame to JPEG
         cv::imencode(".jpg", frame, buff, param);
-        
+
+        // General algo
         database.journalWrite({0, utils::getDatetime(), "TESTDATA", buff}); // TEMPORARY
 
+        // Draw the image on GUI
         myImage = Mat2QImage(frame);
         myLabel.setPixmap(QPixmap::fromImage(myImage));
+
+        // HOW TO GET RID THIS
         cv::imshow(camera.name, frame);
         if (cv::waitKey(5) == 27) break;
+        // !
     }
 
     // Disconnecting

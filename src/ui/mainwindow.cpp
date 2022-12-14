@@ -19,6 +19,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::addNewServiceItem(std::string id, std::string type, std::string data) {
+    //
+}
+
 void MainWindow::addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image)
 {
     this->journalList.push_back(new JournalItem(time, camera, status, id, &image));
