@@ -21,12 +21,16 @@ public:
     QVBoxLayout journalLayout{&journalRoot};
     std::vector<QWidget*> journalList;
 
+    bool isClosed = false;
+
     void addNewServiceItem(std::string id, std::string type, std::string data);
     void addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image);
     void updateFrame(QImage qimage);
 
 private:
     Ui::MainWindow *ui;
+
+    void closeEvent(QCloseEvent *e);
 
 };
 #endif // MAINWINDOW_H

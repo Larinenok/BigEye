@@ -1,6 +1,7 @@
 #include "ui/mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "ui/journalitem.h"
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow)
@@ -29,4 +30,10 @@ void MainWindow::addNewJournalItem(std::string time, std::string camera, std::st
 void MainWindow::updateFrame(QImage qimage)
 {
     ui->video->setPixmap(QPixmap::fromImage(qimage));
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    std::cout << "close" << std::endl;
+    this->isClosed = true;
 }

@@ -143,10 +143,16 @@ int main(int argc, char** argv) {
         dnn.processFrame(frame, true, Points, database);
 
         // Draw the image on GUI
+        int scaller = frame.size().width / 500;
+        int newWidth = frame.size().width / scaller;
+        int newHeight = frame.size().height / scaller;
+        resize(frame, frame, cv::Size(newWidth, newHeight), cv::INTER_LINEAR);
         w.updateFrame(Mat2QImage(frame));
 
         // Update events
         a.processEvents();
+
+        if (w.isClosed) return 0;
     }
 
     // Disconnecting
