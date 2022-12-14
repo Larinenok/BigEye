@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
         // Update events
         a.processEvents();
 
-        if (w.isClosed) return 0;
+        if (w.isClosed) break;
     }
 
     // Disconnecting
@@ -160,5 +160,5 @@ int main(int argc, char** argv) {
                            utils::getHostname() + ";" + utils::getDatetime()});
     database.disconnect();
 
-    return a.exec();
+    return 0;
 }
