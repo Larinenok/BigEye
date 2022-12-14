@@ -1,6 +1,6 @@
-#include "ui/mainwindow.h"
-#include "ui_mainwindow.h"
-#include "ui/journalitem.h"
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
+#include "journalitem.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow)
@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->journalScroll->setWidget(&this->journalRoot);
 
     for (int i = 0; i < 10; i++)
-        this->addNewJournalItem("00:00", "camera 1", "old", "123456");
+        this->addNewJournalItem("00:00", "camera 1", "old", std::to_string(i * 111), *new std::vector<unsigned char>(0));
 }
 
 MainWindow::~MainWindow()
@@ -19,8 +19,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addNewJournalItem(std::string time, std::string camera, std::string status, std::string id)
+void MainWindow::addNewJournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image)
 {
-    this->journalList.push_back(new JournalItem(time, camera, status, id));
+    this->journalList.push_back(new JournalItem(time, camera, status, id, &image));
     this->journalLayout.addWidget(this->journalList.back());
 }

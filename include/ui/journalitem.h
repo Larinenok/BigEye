@@ -12,7 +12,7 @@ class JournalItem : public QWidget
     Q_OBJECT
 
 public:
-    explicit JournalItem(std::string time, std::string camera, std::string status, std::string id, QWidget *parent = nullptr);
+    explicit JournalItem(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> *image, QWidget *parent = nullptr);
     ~JournalItem();
 
     std::string time;
@@ -20,8 +20,12 @@ public:
     std::string status;
     std::string id;
 
+    std::vector<unsigned char> *image;
+
 private:
     Ui::JournalItem *ui;
+
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
 #endif // JOURNALITEM_H
