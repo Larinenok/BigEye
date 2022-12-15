@@ -3,8 +3,9 @@
 #include "ui/journalitem.h"
 #include <iostream>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
-                                          ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -17,7 +18,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addNewServiceItem(std::string id, std::string type, std::string data) {
+void MainWindow::addNewServiceItem(std::string id, std::string type, std::string data)
+{
     //
 }
 
@@ -39,6 +41,25 @@ void MainWindow::easterSecret(std::string hostname) {
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    std::cout << "close" << std::endl;
+    this->isClosed = true;
+}
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QMessageBox::aboutQt(this);
+}
+
+void MainWindow::on_actionAbout_application_triggered()
+{
+    QString info;
+    info += "<h1>BigEye</h1><br>";
+    info += "The face recognition software. Uses Qt, OpenCV and PostgreSQL. Written in C++.<br><br>";
+    info += "Check project reposytory: <a href=\"https://github.com/Larinenok/BigEye.git\">click</a>";
+
+    QMessageBox::about(this, "About", info);
+}
+
+void MainWindow::on_actionExit_triggered()
+{
     this->isClosed = true;
 }

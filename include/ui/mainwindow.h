@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QImage>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,6 +29,11 @@ public:
     void updateFrame(QImage qimage);
 
     void easterSecret(std::string hostname);
+
+private slots:
+    void on_actionAbout_Qt_triggered();
+    void on_actionAbout_application_triggered();
+    void on_actionExit_triggered();
 
 private:
     Ui::MainWindow *ui;
