@@ -1,9 +1,17 @@
 #include "db/backend/postgres.hpp"
 
+#include <charconv>
 #include <cstddef>
 #include <db/db.hpp>
+#include <pqxx/field>
 #include <pqxx/pqxx>
+#include <pqxx/strconv.hxx>
 #include <pqxx/util>
+#include <pqxx/binarystring>
+#include <pqxx/array>
+#include <pqxx/blob>
+#include <pqxx/field>
+#include <pqxx/strconv>
 #include <string>
 
 #include "excepts.hpp"
@@ -100,6 +108,19 @@ void impl::journalWrite(journal::row dataRow) {
     W.exec_prepared("journalWrite", dataRow.datetime, dataRow.metadata, pqxx::binary_cast(dataRow.image));
     W.commit();
 }
+
+std::string hexToASCII(std::string hex) {
+    string ascii = "";
+    for (size_t i = 2; i < hex.length(); i += 2)
+    {
+        string part = hex.substr(i, 2);
+        char ch = stoul(part, nullptr, 16);
+
+        ascii += ch;
+    }
+    return ascii;
+}
+
 std::vector<journal::row> impl::journalRead(size_t count) {
     std::vector<journal::row> ret;
     pqxx::work W{*C};
@@ -110,11 +131,10 @@ std::vector<journal::row> impl::journalRead(size_t count) {
         row.id = std::stoul(i.at(0).c_str());
         row.datetime = i.at(1).c_str();
         row.metadata = i.at(2).c_str();
-        auto x = i.at(3).get<std::basic_string<std::byte>>();
-        
-        //std::cout << i.at(3).c_str() << '\n';
-        //row.image = new std::string(i.at(3).c_str()); // Download image... later
-        //std::cout << *row.image << '\n';
+        auto x = hexToASCII(i.at(3).c_str());
+
+        std::vector<unsigned char> y { x.c_str(), x.c_str()+x.size() };
+        row.image = y;
         ret.push_back(row);
     }
 

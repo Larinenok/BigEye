@@ -10,11 +10,14 @@
 #include <opencv2/core.hpp>
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <pqxx/util>
 #include <string>
 #include <thread>
 #include <chrono>
+#include <iostream>
+#include <fstream>
 
 #include "db/db.hpp"
 #include "engine/engine.hpp"
@@ -71,6 +74,7 @@ inline void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID
         }
     }
 }
+
 int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
@@ -115,10 +119,9 @@ int main(int argc, char** argv) {
     database.setup();
 
     //------ Looking for cameras ------//
-    std::vector<input::cameraDevice> cameraList = {input::cameraDevice{}};
+    std::vector<input::cameraDevice> cameraList = {input::cameraDevice()};
     if (!runtime::FLAG_noScan)
         cameraList = input::getCameraList();
-
     database.serviceWrite({0, db::dataRows::service::types::connectEvent,
                            utils::getDatetime() + ";" + utils::getHostname() + ";" +
                                std::to_string(cameraList.size())});
@@ -146,7 +149,16 @@ int main(int argc, char** argv) {
     for (auto& i : journalDump) {
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
                   << i.image.size() << " ]\n";
-        w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
+
+        // Test image write:
+        /*
+        std::vector<uchar> buf = i.image;
+        std::ofstream textout ("./test3.jpg", std::ios::out | std::ios::binary);
+        textout.write((const char*)&buf[0], buf.size());
+        textout.close();
+        */
+
+        w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), i.image);
         if (journalLastID < i.id) journalLastID = i.id;
     }
 
@@ -161,12 +173,17 @@ int main(int argc, char** argv) {
     cv::Mat frame;
 
     input::cameraDevice camera = cameraList.at(0);
+    cv::VideoCapture cap{input::openCamera(camera.descriptor)};
+    if ((camera.mode.y == 0) || (camera.mode.x == 0)) {
+        cap.read(frame);
+        camera.mode.y = frame.size().width;
+        camera.mode.x = frame.size().height;
+    }
     int scaller = camera.mode.y / 500;
     int newWidth = camera.mode.y / scaller;
     int newHeight = camera.mode.x / scaller;
-    cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
-    // For jpeg upload
+    // Local runtime variables
     std::vector <double> Points;
     size_t counter = 1;
 
