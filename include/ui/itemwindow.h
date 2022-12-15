@@ -12,7 +12,7 @@ class ItemWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit ItemWindow(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> *image, QWidget *parent = nullptr);
+    ItemWindow(std::string time, std::string camera, std::string status, std::string id, std::vector<unsigned char> image, QWidget *parent = nullptr);
     ~ItemWindow();
 
     std::string time;
@@ -20,7 +20,7 @@ public:
     std::string status;
     std::string id;
 
-    std::vector<unsigned char> *image;
+    std::vector<unsigned char> image;
 
 private:
     Ui::ItemWindow *ui;

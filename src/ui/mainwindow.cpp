@@ -1,7 +1,6 @@
 #include "ui/mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "ui/journalitem.h"
-#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

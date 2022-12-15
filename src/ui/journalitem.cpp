@@ -8,7 +8,7 @@ JournalItem::JournalItem(std::string time, std::string camera, std::string statu
     camera(camera),
     status(status),
     id(id),
-    image(image),
+    image(*image),
     ui(new Ui::JournalItem)
 {
     ui->setupUi(this);

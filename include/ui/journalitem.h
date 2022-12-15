@@ -20,7 +20,7 @@ public:
     std::string status;
     std::string id;
 
-    std::vector<unsigned char> *image;
+    std::vector<unsigned char> image;
 
 private:
     Ui::JournalItem *ui;
