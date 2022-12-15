@@ -15,8 +15,15 @@ public:
     explicit SqlWindow(QWidget *parent = nullptr);
     ~SqlWindow();
 
+    bool isClosed = false;
+
+private slots:
+    void on_database_activated(QString str);
+
 private:
     Ui::SqlWindow *ui;
+
+    void closeEvent(QCloseEvent *e);
 };
 
 #endif // SQLWINDOW_H

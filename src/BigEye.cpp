@@ -1,3 +1,4 @@
+#include "ui/sqlwindow.h"
 #include "ui/mainwindow.h"
 
 #include <QApplication>
@@ -88,6 +89,14 @@ int main(int argc, char** argv) {
     //------ Cringe GUI ------//
     //if (!runtime::FLAG_headless) {
         QApplication a(argc, argv);
+        
+        SqlWindow sw;
+        sw.show();
+        while (true) {
+            a.processEvents();
+            if (sw.isClosed) break;
+        }
+
         MainWindow w;
         w.show();
         QImage myImage;
@@ -119,9 +128,10 @@ int main(int argc, char** argv) {
     database.setup();
 
     //------ Looking for cameras ------//
-    std::vector<input::cameraDevice> cameraList = {input::cameraDevice()};
+    std::vector<input::cameraDevice> cameraList = {input::cameraDevice{}};
     if (!runtime::FLAG_noScan)
         cameraList = input::getCameraList();
+
     database.serviceWrite({0, db::dataRows::service::types::connectEvent,
                            utils::getDatetime() + ";" + utils::getHostname() + ";" +
                                std::to_string(cameraList.size())});
@@ -149,16 +159,7 @@ int main(int argc, char** argv) {
     for (auto& i : journalDump) {
         std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
                   << i.image.size() << " ]\n";
-
-        // Test image write:
-        /*
-        std::vector<uchar> buf = i.image;
-        std::ofstream textout ("./test3.jpg", std::ios::out | std::ios::binary);
-        textout.write((const char*)&buf[0], buf.size());
-        textout.close();
-        */
-
-        w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), i.image);
+        w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
         if (journalLastID < i.id) journalLastID = i.id;
     }
 
@@ -173,17 +174,12 @@ int main(int argc, char** argv) {
     cv::Mat frame;
 
     input::cameraDevice camera = cameraList.at(0);
-    cv::VideoCapture cap{input::openCamera(camera.descriptor)};
-    if ((camera.mode.y == 0) || (camera.mode.x == 0)) {
-        cap.read(frame);
-        camera.mode.y = frame.size().width;
-        camera.mode.x = frame.size().height;
-    }
     int scaller = camera.mode.y / 500;
     int newWidth = camera.mode.y / scaller;
     int newHeight = camera.mode.x / scaller;
+    cv::VideoCapture cap{input::openCamera(camera.descriptor)};
 
-    // Local runtime variables
+    // For jpeg upload
     std::vector <double> Points;
     size_t counter = 1;
 
