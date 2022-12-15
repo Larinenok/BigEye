@@ -2,6 +2,9 @@
 The face recognition software.
 Uses Qt, OpenCV and PostgreSQL. Written in C++.
 
+## Screenshot
+![](https://github.com/Larinenok/BigEye/blob/main/Screenshot.png)
+
 ## Members
 | Name | Role |
 |---|---|
