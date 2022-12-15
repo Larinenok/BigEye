@@ -16,9 +16,14 @@ public:
     ~SqlWindow();
 
     bool isClosed = false;
+    std::string database = "None";
+    std::string address;
+    std::string user;
+    std::string password;
+    std::string name;
 
 private slots:
-    void on_database_activated(QString str);
+    void on_pushButton_clicked();
 
 private:
     Ui::SqlWindow *ui;
