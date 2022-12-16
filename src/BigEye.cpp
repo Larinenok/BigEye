@@ -3,24 +3,20 @@
 
 #include <QApplication>
 
-#include <cstdlib>
-#include <exception>
+#include <iostream>
+#include <string>
 #include <opencv2/core.hpp>
 #include <opencv2/dnn/dnn.hpp>
-#include <string>
-#include <chrono>
-#include <iostream>
 
-#include "db/db.hpp"
 #include "engine/engine.hpp"
-#include "excepts.hpp"
 #include "input/camera.hpp"
 #include "input/stream.hpp"
-#include "runtime.hpp"
-#include "ui/feedback.hpp"
-#include "ui/window.hpp"
 #include "utils/args.hpp"
 #include "utils/host.hpp"
+#include "ui/feedback.hpp"
+#include "db/db.hpp"
+#include "runtime.hpp"
+#include "excepts.hpp"
 
 // Runtime defaults
 bool runtime::FLAG_headless = false;
@@ -40,31 +36,22 @@ QImage Mat2QImage(cv::Mat const& src);
 void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t& journalCount, size_t& counter);
 
 int main(int argc, char** argv) {
-    //* Args parsing. It may change runtime::FLAG_ *//
+    //* It may change runtime::FLAG_ *//
     utils::parseArgs(argc, argv);
 
-    //* QMessageBox test... *//
-    ui::error("Msg1");
-    ui::info("Msg2");
-    ui::warn("Msg3");
-    ui::msg("Msg4");
-
     //------ Cringe GUI ------//
-    //if (!runtime::FLAG_headless) {
-        QApplication a(argc, argv);
+    QApplication a(argc, argv);
 
-        SqlWindow sw;
-        sw.show();
-        while (true) {
-            a.processEvents();
-            if (sw.isClosed) break;
-        }
+    SqlWindow sw;
+    sw.show();
+    while (true) {
+        a.processEvents();
+        if (sw.isClosed) break;
+    }
 
-        MainWindow w;
-        w.show();
-        QImage myImage;
-        w.easterSecret(utils::getHostname());
-    //}
+    MainWindow w;
+    w.show();
+    w.easterSecret(utils::getHostname());
 
     //------ Database connect ------//
     /// Arg string to backend1
@@ -82,7 +69,7 @@ int main(int argc, char** argv) {
         database.connect();
     } catch (std::exception& e) {
         ui::error(e.what());
-        ui::error("Something goes whong while BigEye trying to access database! Using DryRun mode!");
+        ui::warn("Something goes whong while BigEye trying to access database! Using DryRun mode!");
         runtime::FLAG_dryRun = true;
         database = {};
     }
@@ -92,20 +79,14 @@ int main(int argc, char** argv) {
     std::vector<input::cameraDevice> cameraList = {input::cameraDevice()};
     if (!runtime::FLAG_noScan)
         cameraList = input::getCameraList();
-    database.serviceWrite({0, db::dataRows::service::types::connectEvent,
-                           utils::getDatetime() + ";" + utils::getHostname() + ";" +
-                               std::to_string(cameraList.size())});
 
     //------ Database lookup ------//
     uint32_t serviceLastID = 0;
     uint32_t journalLastID = 0;
 
-    std::cout << "\t[Service table]\n";
     size_t serviceCount = database.getRowsCount("service");
     auto serviceDump = database.serviceRead(serviceCount);
     for (auto& i : serviceDump){
-        if (runtime::FLAG_headless)
-            std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
         w.addNewServiceItem(
             std::to_string(i.id),
             "Later...",
@@ -114,16 +95,16 @@ int main(int argc, char** argv) {
         if (serviceLastID < i.id) serviceLastID = i.id;
     }
 
-    std::cout << "\n\t[Journal table]\n";
     size_t journalCount = database.getRowsCount("journal");
     auto journalDump = database.journalRead(journalCount);
     for (auto& i : journalDump) {
-        if (runtime::FLAG_headless)
-            std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
-                    << i.image.size() << " ]\n";
         w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), i.image);
         if (journalLastID < i.id) journalLastID = i.id;
     }
+
+    database.serviceWrite({0, db::dataRows::service::types::connectEvent,
+                           utils::getDatetime() + ";" + utils::getHostname() + ";" +
+                           std::to_string(cameraList.size())});
 
     //------ DNN Init ------//
     auto dnn = engine::dnnLayer(
@@ -140,6 +121,8 @@ int main(int argc, char** argv) {
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
     if ((camera.mode.y == 0) || (camera.mode.x == 0)) {
         cap.read(frame);
+        if (frame.empty())
+            ui::error("Unable to capture frame from default camera! Is it connected?");
         camera.mode.y = frame.size().width;
         camera.mode.x = frame.size().height;
     }
