@@ -13,9 +13,14 @@
 namespace utils {
 
 std::string getHostname() {
-    char buff[32];
-    gethostname(buff, 32);
-    return static_cast<std::string>(buff);
+char buff[128];
+#ifdef _WIN32
+    DWORD size = sizeof(buff);
+    GetComputerNameA(buff, &size);
+#else
+    gethostname(buff, 128);
+#endif
+return static_cast<std::string>(buff);
 }
 
 std::string getDatetime(datetimeFormat format) {

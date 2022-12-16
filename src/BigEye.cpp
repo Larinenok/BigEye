@@ -2,23 +2,14 @@
 #include "ui/mainwindow.h"
 
 #include <QApplication>
-#include <QObject>
-#include <QLabel>
-#include <QObject>
 
 #include <cstdlib>
 #include <exception>
 #include <opencv2/core.hpp>
 #include <opencv2/dnn/dnn.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <pqxx/util>
 #include <string>
-#include <thread>
 #include <chrono>
 #include <iostream>
-#include <fstream>
 
 #include "db/db.hpp"
 #include "engine/engine.hpp"
@@ -45,36 +36,8 @@ std::string runtime::KEY_db_name;
 
 db::backends::available backend;
 
-QImage Mat2QImage(cv::Mat const& src) {
-    cv::Mat temp; 
-    cvtColor(src, temp, cv::COLOR_BGR2RGB); 
-    QImage dest((const uchar *)temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
-    dest.bits(); 
-    // of QImage::QImage ( const uchar * data, int width, int height, Format format )
-    return dest;
-}
-
-inline void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t& journalCount, size_t& counter) {
-    if (counter <= 30) {
-        counter++;
-        return;
-    }
-    counter = 1;
-
-    size_t newCount = database.getRowsCount("journal");
-    if (newCount == journalCount) return;
-    // If new exists:
-    journalCount = newCount;
-    auto journalDump = database.journalRead(newCount);
-    for (auto& i : journalDump) {
-        if (i.id > journalLastID) {
-            std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
-                    << i.image.size() << " ]\n";
-            w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
-            journalLastID = i.id;
-        }
-    }
-}
+QImage Mat2QImage(cv::Mat const& src);
+void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t& journalCount, size_t& counter);
 
 int main(int argc, char** argv) {
     //* Args parsing. It may change runtime::FLAG_ *//
@@ -114,14 +77,12 @@ int main(int argc, char** argv) {
     remoteHost.fromRemoteHost(runtime::KEY_db_address);
 
     /// Connect
-    db::db database{backend, runtime::KEY_db_user, runtime::KEY_db_passwd, runtime::KEY_db_name,
-                    remoteHost};
+    db::db database { backend, runtime::KEY_db_user, runtime::KEY_db_passwd, runtime::KEY_db_name, remoteHost };
     try {
         database.connect();
     } catch (std::exception& e) {
         ui::error(e.what());
-        ui::error(
-            "Something goes whong while BigEye trying to access database! Using DryRun mode!");
+        ui::error("Something goes whong while BigEye trying to access database! Using DryRun mode!");
         runtime::FLAG_dryRun = true;
         database = {};
     }
@@ -143,7 +104,8 @@ int main(int argc, char** argv) {
     size_t serviceCount = database.getRowsCount("service");
     auto serviceDump = database.serviceRead(serviceCount);
     for (auto& i : serviceDump){
-        std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
+        if (runtime::FLAG_headless)
+            std::cout << "[ " << std::to_string(i.id) << " | " << i.type << " | " << i.data << " ]\n";
         w.addNewServiceItem(
             std::to_string(i.id),
             "Later...",
@@ -156,13 +118,14 @@ int main(int argc, char** argv) {
     size_t journalCount = database.getRowsCount("journal");
     auto journalDump = database.journalRead(journalCount);
     for (auto& i : journalDump) {
-        std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
-                  << i.image.size() << " ]\n";
+        if (runtime::FLAG_headless)
+            std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
+                    << i.image.size() << " ]\n";
         w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), i.image);
         if (journalLastID < i.id) journalLastID = i.id;
     }
 
-    //------ Engine test... ------//
+    //------ DNN Init ------//
     auto dnn = engine::dnnLayer(
         "./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel",
         {0.5, runtime::FLAG_useCuda ?
@@ -172,6 +135,7 @@ int main(int argc, char** argv) {
     engine::dnnReturns ret;
     cv::Mat frame;
 
+    //------ Camera init ------//
     input::cameraDevice camera = cameraList.at(0);
     cv::VideoCapture cap{input::openCamera(camera.descriptor)};
     if ((camera.mode.y == 0) || (camera.mode.x == 0)) {
@@ -209,4 +173,34 @@ int main(int argc, char** argv) {
     database.disconnect();
 
     return 0;
+}
+
+QImage Mat2QImage(cv::Mat const& src) {
+    cv::Mat temp; 
+    cvtColor(src, temp, cv::COLOR_BGR2RGB); 
+    QImage dest ((const uchar *)temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+    dest.bits(); 
+    return dest;
+}
+
+void pullUpdates(db::db& database, MainWindow& w, uint32_t& journalLastID, size_t& journalCount, size_t& counter) {
+    if (counter <= 30) {
+        counter++;
+        return;
+    }
+    counter = 1;
+
+    size_t newCount = database.getRowsCount("journal");
+    if (newCount == journalCount) return;
+    // If new exists:
+    journalCount = newCount;
+    auto journalDump = database.journalRead(newCount);
+    for (auto& i : journalDump) {
+        if (i.id > journalLastID) {
+            std::cout << "[ " << std::to_string(i.id) << " | " << i.datetime << " | " << i.metadata
+                    << i.image.size() << " ]\n";
+            w.addNewJournalItem(i.datetime, i.metadata, i.metadata, std::to_string(i.id), {});
+            journalLastID = i.id;
+        }
+    }
 }
